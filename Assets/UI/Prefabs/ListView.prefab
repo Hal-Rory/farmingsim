@@ -214,6 +214,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9deece508bd282e43831b947bcc30457, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Background: {fileID: 1255893023866963556}
   Scroll: {fileID: 1255893023866963563}

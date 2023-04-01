@@ -260,8 +260,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TillDecayMax: 10
-  WaterDecayMax: 0.1
+  WaterDecayDelta: 1
   FieldRenderer: {fileID: 8567597666413887547}
+  Dig: {fileID: 8300000, guid: 5dabdcb63114ccf4a8e775311b6a3ee5, type: 3}
+  Water: {fileID: 8300000, guid: f4a16e80f8182844bbd73c3e296a86be, type: 3}
+  Cut: {fileID: 8300000, guid: 6bf7e1cb98a80734c81124967d353e37, type: 3}
+  Grab: {fileID: 8300000, guid: eb3a105a19642da42b5da0121f6c6bc8, type: 3}
+  Plant: {fileID: 8300000, guid: 91298001642773b4cbfaa71a845e2c52, type: 3}
+  Player: {fileID: 0}
 --- !u!114 &7268368473005427191
 MonoBehaviour:
   m_ObjectHideFlags: 0

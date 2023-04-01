@@ -1,10 +1,9 @@
-using Newtonsoft.Json;
 using System;
 using System.IO;
-using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
-using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [Serializable]
 [ExecuteInEditMode]
@@ -28,6 +27,7 @@ public class UIThemeManager
 
     public static void UpdateTheme()
     {
+#if UNITY_EDITOR
         string[] guids = AssetDatabase.FindAssets("", new[] { PrefabPath });
 
         foreach (var guid in guids)
@@ -43,12 +43,14 @@ public class UIThemeManager
                 PrefabUtility.SavePrefabAsset(go);
             }
         }
+#endif
     }
 
     private static bool TryFind<T>(string other, out T theme)
         where T : UnityEngine.Object
     {
         theme = default;
+#if UNITY_EDITOR
         string[] guids = AssetDatabase.FindAssets("", new[] { ThemePath });
         foreach (var guid in guids)
         {
@@ -60,11 +62,13 @@ public class UIThemeManager
                 return true;
             }
         }
+#endif
         return false;
     }
     
     public static void SaveAndOverwriteTheme(string themeName)
     {
+#if UNITY_EDITOR
         if (_highlightThemeData == null)
         {
             if (TryFind($"{nameof(HighlightThemeData)}_{themeName}", out HighlightThemeData ui))
@@ -140,10 +144,11 @@ public class UIThemeManager
         _selectableThemeData.ID = $"{nameof(SelectableThemeData)}_{themeName}";
         EditorUtility.SetDirty(_selectableThemeData);
         AssetDatabase.SaveAssets();
-        //AssetDatabase.Refresh();
+#endif
     }
     public static void LoadOrCreateTheme(string themeName)
     {
+#if UNITY_EDITOR
         if (TryFind($"{nameof(HighlightThemeData)}_{themeName}", out HighlightThemeData hl))
         {
             _highlightThemeData = hl;
@@ -202,5 +207,6 @@ public class UIThemeManager
             AssetDatabase.CreateAsset(_selectableThemeData, $"{ThemePath}/{_selectableThemeData.ID}.asset");
             AssetDatabase.SaveAssets();
         }
+#endif
     }
 }

@@ -1,5 +1,3 @@
-using Codice.Utils;
-using System.Collections;
 using UnityEngine;
 
 public abstract class UIThemeData : ScriptableObject

@@ -108,6 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4a6ca4fdc569cd40ab83fe8fd8543c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Background: {fileID: 2629407673734606528}
 --- !u!114 &7498449395065105009
@@ -122,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60aae4bc1bcf35a4499c4aa5875e99e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Text: {fileID: 2629407673757292170}
 --- !u!1 &2629407673757292164

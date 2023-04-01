@@ -171,7 +171,8 @@ namespace Farm.Field
             Current= null;
             SetCropRenderer(null);
             TillDecay = TillDecayMax;
-            SetState(IField.FieldState.tilled);
+            if(State == IField.FieldState.watered_crop) SetState(IField.FieldState.watered_tilled);
+            if(State == IField.FieldState.tilled_crop) SetState(IField.FieldState.tilled);
         }
         /// <summary>
         /// Called when we interact with a tilled tile and we have crops to plant.
@@ -179,7 +180,7 @@ namespace Farm.Field
         /// <param name="crop"></param>
         public void PlantNewCrop(CropData crop)
         {
-            if (State != IField.FieldState.tilled || HasCrop())
+            if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop())
                 return;            
             Current = new Crop(crop);
             Current.Plant(crop, GameManager.Instance.TimeManager.CurrentTime);

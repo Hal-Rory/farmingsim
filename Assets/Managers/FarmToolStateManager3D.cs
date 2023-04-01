@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
 {

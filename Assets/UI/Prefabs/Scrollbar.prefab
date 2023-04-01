@@ -253,5 +253,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2f28ba5a172db44d86f936301ccf179, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Selectable: {fileID: 893496569230896609}

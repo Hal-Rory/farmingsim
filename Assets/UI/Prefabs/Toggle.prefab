@@ -37,7 +37,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 113.45, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &899675039621943720
 CanvasRenderer:
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_Spacing: 2
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
-  m_ChildControlWidth: 0
+  m_ChildControlWidth: 1
   m_ChildControlHeight: 1
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
@@ -288,6 +288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2f28ba5a172db44d86f936301ccf179, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Selectable: {fileID: 2493191010599380073}
 --- !u!114 &695090680151952710
@@ -302,6 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 872664bc06901894eb5ee91d086fa9fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Highlight: {fileID: 7440431144472877031}
 --- !u!114 &8601499176654307584
@@ -316,6 +318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60aae4bc1bcf35a4499c4aa5875e99e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ManualUpdate: 0
   Override: {fileID: 0}
   Text: {fileID: 899675039621943721}
 --- !u!1 &899675041449081508
@@ -354,8 +357,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 24, y: 0}
+  m_AnchoredPosition: {x: 33.387756, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &899675041449081505
 CanvasRenderer:

@@ -1,12 +1,10 @@
-using Mono.Cecil.Cil;
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class DockableUI : DraggableUI
 {
     public bool CheckUI;
-    [TagSelector]
+    //[TagSelector]
     public string TagFilter= string.Empty;
     public LayerMask Layers;
 

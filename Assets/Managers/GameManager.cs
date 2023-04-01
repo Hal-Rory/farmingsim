@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [field: SerializeField] public IInputManager InputManager { get; private set; }
     [field: SerializeField] public ITimeManager TimeManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
+    [field: SerializeField] public AudioSource Player{ get; private set; }
 
     void Awake()
     {

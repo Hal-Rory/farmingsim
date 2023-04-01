@@ -1,5 +1,4 @@
 using System;
-using UnityEngine.UI;
 using static UnityEngine.UI.ScrollRect;
 [Serializable]
 public class ScrollRectThemeData : PanelThemeData

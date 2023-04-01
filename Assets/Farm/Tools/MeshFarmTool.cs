@@ -1,36 +1,88 @@
-using Farm.Field;
 using Items;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MeshFarmTool : MonoBehaviour, IFarmTool
 {
-    private MeshRenderer Renderer;
-    private MeshFilter Mesh;
+    [SerializeField] private MeshRenderer Renderer;
+    [SerializeField] private MeshFilter Mesh;
     private Vector3 StartingPosition;
+    [SerializeField] private bool UpdateInEditor;
+    [SerializeField] private TOOL_TYPE Type;
+    [SerializeField] private Animator Animation;
+    private bool CanAnimate;
+    private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
+
+    private void OnValidate()
+    {
+        if (UpdateInEditor)
+        {
+            UpdateInEditor= false;
+            FarmToolStateManager3D farmToolManager = FindObjectOfType<FarmToolStateManager3D>();
+            if(farmToolManager != null)
+            {
+                MeshFarmToolCollection farmTool = farmToolManager.GetTools().Find(x => x.Data.ToolType == Type) as MeshFarmToolCollection;
+                SetRendererAndMesh(farmTool);
+            }            
+        }
+    }
 
     private void Awake()
     {
-        StartingPosition= transform.position;
-        Renderer = GetComponent<MeshRenderer>();
-        Mesh = GetComponent<MeshFilter>();
+        StartingPosition= transform.position;        
     }
 
     public void Register()
     {
-        GameManager.Instance.FarmToolManager.RegisterListener(SetToolRender);
-        GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(SwapTool);
+        FarmManager.RegisterListener(SetToolRender);
+        GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(DoSwapTool);
+        GameManager.Instance.InputManager.RegisterPrimaryInteractionListener(PlayAnimation);
     }
 
     public void Unregister()
     {
-        GameManager.Instance.FarmToolManager.UnregisterListener(SetToolRender);
-        GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(SwapTool);
+        FarmManager.UnregisterListener(SetToolRender);
+        GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(DoSwapTool);
+        GameManager.Instance.InputManager.UnregisterPrimaryInteractionListener(PlayAnimation);
+    }
+
+    private void PlayAnimation(bool interact)
+    {
+        if (interact)
+        {
+            Animate();
+        }
+    }
+    private void Animate(bool play = true)
+    {
+        if(!(play && CanAnimate))
+        {
+            Animation.SetBool("idle", true);
+            return;
+        }
+        Animation.SetBool("idle", false);
+        switch (GameManager.Instance.SelectedTool)
+        {
+            case TOOL_TYPE.Dig:
+                Animation.Play("Dig");
+                break;
+            case TOOL_TYPE.Water:
+                Animation.Play("Water");
+                break;
+            case TOOL_TYPE.Cut:
+                Animation.Play("Cut");
+                break;
+            case TOOL_TYPE.Hands:
+                Animation.Play("Hand");
+                break;            
+        }
     }
 
     private void Start()
     {
+
+        if (FarmManager.TryGetTool(GameManager.Instance.SelectedTool, out IFarmToolCollection farmTool)){
+            SetToolRender(farmTool);
+        }
         Register();
     }
     private void OnDestroy()
@@ -41,49 +93,56 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     {
         if(GameManager.Instance.TryGetCurrentHovered(SELECTABLE_TYPE.field, out GameObject selectable))
         {
-            transform.position = selectable.transform.position + Vector3.up;            
+            transform.position = selectable.transform.position + Vector3.up;
+            CanAnimate = true;
         }
         else
         {
+            if (CanAnimate)
+            {
+                Animate(false);
+                CanAnimate = false;            
+            }
             transform.position = StartingPosition;
         }
     }
 
+    private void SetRendererAndMesh(MeshFarmToolCollection farmTool)
+    {
+        //debug due to odd models
+        switch (farmTool.Data.ToolType)
+        {
+            case TOOL_TYPE.Hands:
+            case TOOL_TYPE.Dig:
+                Renderer.transform.localScale = new Vector3(-50, 50, 50);
+                break;
+            case TOOL_TYPE.Cut:
+            case TOOL_TYPE.Water:
+                Renderer.transform.localScale = new Vector3(-20, 20, 20);
+                break;
+        }
+
+        Renderer.sharedMaterials = farmTool.RendererSet.Materials;
+        Mesh.sharedMesh = farmTool.RendererSet.Mesh;
+    }
+
     public void SetToolRender(IFarmToolCollection collection)
     {
+        Animate(false);
         if (collection is MeshFarmToolCollection farmTool)
-        {
-            //debug due to odd models
-            switch (farmTool.Data.ToolType)
-            {
-                case Items.TOOL_TYPE.Hands:
-                    transform.localScale = new Vector3(-50, 50, 50);
-                    transform.localEulerAngles = Vector3.right * 180;
-                    break;
-                case Items.TOOL_TYPE.Cut:
-                case Items.TOOL_TYPE.Water:
-                    transform.localScale = new Vector3(-20, 20, 20);
-                    transform.localEulerAngles = Vector3.right * 270;
-                    break;
-                default:
-                    transform.localScale = new Vector3(-50, 50, 50);
-                    transform.localEulerAngles = Vector3.right * 270;
-                    break;
-            }
-
-            Renderer.sharedMaterials = farmTool.RendererSet.Materials;
-            Mesh.sharedMesh = farmTool.RendererSet.Mesh;
+        {            
+            SetRendererAndMesh(farmTool);
         }
     }
-    public void SwapTool(bool interact)
+    public void DoSwapTool(bool interact)
     {
         if(interact)
-        {
-            SwapTool(GameManager.Instance.FarmToolManager.NextTool());
+        {            
+            SwapTool(FarmManager.NextTool());
         }
     }
     public void SwapTool(TOOL_TYPE tool)
     {
-        GameManager.Instance.FarmToolManager.SwapTool(tool);
+        FarmManager.SwapTool(tool);
     }
 }

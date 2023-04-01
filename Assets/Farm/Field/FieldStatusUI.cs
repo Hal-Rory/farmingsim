@@ -1,9 +1,6 @@
 using Farm.Field;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
 public class FieldStatusUI : MonoBehaviour
 {
@@ -23,6 +20,7 @@ public class FieldStatusUI : MonoBehaviour
             {                
                 DisplayCard.gameObject.SetActive(true);
             }
+            if(Target.HasCrop()) DisplayCard.SetIcon(Target.CropStats.Display);
         } else if(Target != null)
         {
             Target = null;
