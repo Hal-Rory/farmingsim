@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 [Serializable]
+[CreateAssetMenu(fileName = "LabelThemeData_", menuName = "Themes/New Label Theme")]
 public class LabelThemeData : UIThemeData
 {
     public Font Font;

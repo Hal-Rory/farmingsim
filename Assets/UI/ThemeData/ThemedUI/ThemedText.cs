@@ -6,12 +6,20 @@ public class ThemedText : ThemedUI
 
     public override void UpdateTheme()
     {
-        Text.color = UIThemeManager.LabelThemeData.FontColor;
-        Text.font = UIThemeManager.LabelThemeData.Font;
-        Text.fontSize = UIThemeManager.LabelThemeData.FontSize;
+        LabelThemeData t;
+        if(Override != null)
+        {
+            t = Override as LabelThemeData;
+        } else
+        {
+            t = UIThemeManager.LabelThemeData;
+        }
+        Text.color = t.FontColor;
+        Text.font = t.Font;
+        Text.fontSize = t.FontSize;
         if (Text.resizeTextForBestFit)
         {
-            Text.resizeTextMaxSize = UIThemeManager.LabelThemeData.FontSize;
+            Text.resizeTextMaxSize = t.FontSize;
         }
     }
 }
