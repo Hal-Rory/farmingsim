@@ -14,6 +14,6 @@ public class ThemedHighlight : ThemedUI
         {
             t = UIThemeManager.HighlightThemeData;
         }
-        Highlight.color = t;
+        Highlight.color = t.HighlightColor;
     }
 }
