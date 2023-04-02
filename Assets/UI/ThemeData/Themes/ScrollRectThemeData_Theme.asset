@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: ScrollRectThemeData_Theme
   BackgroundColor: {r: 1, g: 1, b: 1, a: 1}
-  ScrollSensitivity: 1
+  ScrollSensitivity: 10
   MovementType: 2
   Intertia: 0
   DecelerationRate: 0.135

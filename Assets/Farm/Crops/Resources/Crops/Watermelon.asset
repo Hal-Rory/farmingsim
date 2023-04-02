@@ -57,8 +57,8 @@ MonoBehaviour:
       Mesh: {fileID: 4134353514570314643, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
       Materials:
       - {fileID: 5719615456868549548, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
-  PurchasePrice: 0
-  SellPrice: 0
+  PurchasePrice: 10
+  SellPrice: 15
   WaterDelta: 5
   HoursNeeded: 0
   DaysNeeded: 5

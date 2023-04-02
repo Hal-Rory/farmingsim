@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public interface IFarmToolStateManager
 {
-    public List<IFarmToolCollection> GetTools();
+    public IEnumerable<IFarmToolCollection> GetTools();
     public bool TryGetTool(TOOL_TYPE tool, out IFarmToolCollection collection);
     public void SwapTool(TOOL_TYPE type);
     public void RegisterListener(Action<IFarmToolCollection> listener);

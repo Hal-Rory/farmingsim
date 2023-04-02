@@ -10,6 +10,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     [SerializeField] private TOOL_TYPE Type;
     [SerializeField] private Animator Animation;
     private bool CanAnimate;
+    private GameObject Selectable;
     private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
 
     private void OnValidate()
@@ -20,8 +21,10 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
             FarmToolStateManager3D farmToolManager = FindObjectOfType<FarmToolStateManager3D>();
             if(farmToolManager != null)
             {
-                MeshFarmToolCollection farmTool = farmToolManager.GetTools().Find(x => x.Data.ToolType == Type) as MeshFarmToolCollection;
-                SetRendererAndMesh(farmTool);
+                if(farmToolManager.TryGetTool(Type, out IFarmToolCollection tool))
+                {
+                    SetRendererAndMesh(tool as MeshFarmToolCollection);
+                }
             }            
         }
     }
@@ -93,7 +96,9 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     {
         if(GameManager.Instance.TryGetCurrentHovered(SELECTABLE_TYPE.field, out GameObject selectable))
         {
+            if(selectable != Selectable || Selectable == null) Animate(false);
             transform.position = selectable.transform.position + Vector3.up;
+            Selectable= selectable;
             CanAnimate = true;
         }
         else

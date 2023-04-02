@@ -1,6 +1,5 @@
-using System;
 using UnityEngine;
-[Serializable]
+[CreateAssetMenu(fileName = "PanelThemeData_", menuName = "Themes/New Panel Theme")]
 public class PanelThemeData : UIThemeData
 {
     public Color BackgroundColor = Color.white;

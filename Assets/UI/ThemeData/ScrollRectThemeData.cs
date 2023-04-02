@@ -1,14 +1,15 @@
-using System;
-using static UnityEngine.UI.ScrollRect;
-[Serializable]
+using UnityEngine;
+using UnityEngine.UI;
+
+[CreateAssetMenu(fileName = "ScrollRectThemeData_", menuName = "Themes/New ScrollRect Theme")]
 public class ScrollRectThemeData : PanelThemeData
 {
     public float ScrollSensitivity = 1;
-    public MovementType MovementType;
+    public ScrollRect.MovementType MovementType;
     public bool Intertia;
     public float DecelerationRate = .135f;
-    public ScrollbarVisibility VerticalVisibility;
+    public ScrollRect.ScrollbarVisibility VerticalVisibility;
     public float VerticalScrollbarSpacing;
-    public ScrollbarVisibility HorizontalVisibility;
+    public ScrollRect.ScrollbarVisibility HorizontalVisibility;
     public float HorizontalScrollbarSpacing;
 }

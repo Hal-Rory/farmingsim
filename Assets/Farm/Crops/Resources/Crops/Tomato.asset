@@ -40,8 +40,8 @@ MonoBehaviour:
   - Set:
       Mesh: {fileID: -7865970766409841208, guid: abf2592c6e654fb45aa7b7781fc7b437, type: 3}
       Materials:
-      - {fileID: -2505642851634945670, guid: abf2592c6e654fb45aa7b7781fc7b437, type: 3}
       - {fileID: -382652638819485698, guid: abf2592c6e654fb45aa7b7781fc7b437, type: 3}
+      - {fileID: -8753481769234136891, guid: a056591445cdf9144afa784a8522af47, type: 3}
   ReadyToHarvestRender:
     Set:
       Mesh: {fileID: 2546815751545613189, guid: 387d40ef433a9774f9c9ba442551ebcd, type: 3}
@@ -52,8 +52,8 @@ MonoBehaviour:
       Mesh: {fileID: 4134353514570314643, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
       Materials:
       - {fileID: 5719615456868549548, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
-  PurchasePrice: 0
-  SellPrice: 0
+  PurchasePrice: 5
+  SellPrice: 7
   WaterDelta: 2
   HoursNeeded: 0
   DaysNeeded: 4

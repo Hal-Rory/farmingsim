@@ -35,9 +35,9 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
     }
     public TOOL_TYPE NextTool()
     {
-        int current = (int)GameManager.Instance.SelectedTool;
-        int next = (int)Mathf.Repeat(current +1, System.Enum.GetValues(typeof(TOOL_TYPE)).Length);
-        return (TOOL_TYPE)next;
+        int current = FarmToolCollection.FindIndex(x => x.Data.ToolType == GameManager.Instance.SelectedTool);
+        int next = (int)Mathf.Repeat(current +1, FarmToolCollection.Count);
+        return FarmToolCollection[next].Data.ToolType;
     }
     public void RegisterListener(Action<IFarmToolCollection> listener)
     {
@@ -48,9 +48,12 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
         OnToolSwapped -= listener;
     }
 
-    public List<IFarmToolCollection> GetTools()
+    public IEnumerable<IFarmToolCollection> GetTools()
     {
-        return FarmToolCollection.Select(x => x as IFarmToolCollection).ToList();
+        foreach (var item in FarmToolCollection)
+        {
+            yield return item;
+        }
     }
 
     public bool TryGetTool(TOOL_TYPE tool, out IFarmToolCollection collection)

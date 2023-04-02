@@ -2,6 +2,7 @@ using GameTime;
 using Items;
 using UnityEngine;
 using UnityEngine.Assertions;
+using static UnityEngine.ParticleSystem;
 
 namespace Farm.Field
 {
@@ -13,10 +14,19 @@ namespace Farm.Field
         [SerializeField] private float WaterDecayDelta = 1;
         private int TillDecay = 0;
         private int WaterDecay = 0;
-        private Crop Current;        
+        private Crop Current;
+        [SerializeField] private ParticleSystem Particles;
         [SerializeField] private MeshFieldBase FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
         public long TimeNeeded => Current.TimeNeeded;
-        public float GrowthLevel => HasCrop() ? Current.Percentage : 0;
+        public float GrowthLevel
+        {
+            get
+            {
+                if (HasCrop())
+                    return Current.IsAlive ? Current.Percentage : -1;
+                return 0;
+            }
+        }
         public ObjData CropStats => HasCrop() ? Current.CropStats() : null;
 
         private void Awake()
@@ -119,9 +129,9 @@ namespace Farm.Field
                 }
                 Current.Tick();
                 SetCropRenderer(Current.UpdateCropSprite());
-                if (!Current.IsAlive)
+                if (Current.CanHarvest() && !Particles.isPlaying)
                 {
-                    Current = null;
+                    Particles.Play();
                 }
             }
         }
@@ -149,26 +159,35 @@ namespace Farm.Field
                     if (State == IField.FieldState.untilled)
                     {
                         Till();
-                    }
-                    break;
-                case TOOL_TYPE.Cut:                    
-                    EmptyPlot();
-                    break;
-                case TOOL_TYPE.Hands:
-                    if (HasCrop() && Current.CanHarvest())
+                    } else if (HasCrop())
                     {
-                        Current.Harvest();
-                        Current = null;
                         EmptyPlot();
                     }
                     break;
+                case TOOL_TYPE.Cut:
+                    TryHarvest();
+                    break;
+                case TOOL_TYPE.Hands:
+                    if (!TryHarvest())
+                        PlantNewCrop(GameManager.Instance.GetOrSetFirstCrop());
+                    break;
             }            
+        }
+        private bool TryHarvest()
+        {
+            if (!(HasCrop() && Current.CanHarvest())) return false;
+
+            Current.Harvest();
+            EmptyPlot();
+            return true;
         }
         #endregion
 
         private void EmptyPlot()
         {
-            Current= null;
+            if(Particles.isPlaying)
+                Particles.Stop();
+            Current = null;
             SetCropRenderer(null);
             TillDecay = TillDecayMax;
             if(State == IField.FieldState.watered_crop) SetState(IField.FieldState.watered_tilled);
@@ -185,7 +204,8 @@ namespace Farm.Field
             Current = new Crop(crop);
             Current.Plant(crop, GameManager.Instance.TimeManager.CurrentTime);
             SetCropRenderer(Current.UpdateCropSprite(0));
-            SetState(IField.FieldState.tilled_crop);
+            if (State == IField.FieldState.watered_tilled) SetState(IField.FieldState.watered_crop);
+            if (State == IField.FieldState.tilled) SetState(IField.FieldState.tilled_crop);
         }
 
         /// <summary>

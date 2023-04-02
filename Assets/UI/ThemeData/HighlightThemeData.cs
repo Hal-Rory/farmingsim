@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "HighlightThemeData_", menuName = "Themes/New Highlight Theme")]
 public class HighlightThemeData : UIThemeData
 {
     public Color HighlightColor = Color.white;

@@ -6,7 +6,15 @@ public class ThemedScrollRect : ThemedPanel
     public override void UpdateTheme()
     {
         base.UpdateTheme();
-        ScrollRectThemeData t = UIThemeManager.ScrollRectThemeData;
+        ScrollRectThemeData t;
+        if (Override != null)
+        {
+            t = Override as ScrollRectThemeData;
+        }
+        else
+        {
+            t = UIThemeManager.ScrollRectThemeData;
+        }
         Scroll.scrollSensitivity = t.ScrollSensitivity;
         Scroll.movementType = t.MovementType;
         Scroll.inertia = t.Intertia;

@@ -3,6 +3,8 @@ using Items;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static ITimeManager;
+
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
@@ -12,15 +14,14 @@ public class GameManager : MonoBehaviour
     private string SelectedCropToPlant;
     public TOOL_TYPE SelectedTool;
     public event Action<CropData> OnCropSet;
+    public event Action<int> OnMoneyUpdated;
+    public event Action<TIME_STATE> OnTimeUpdated;
     [field: SerializeField] public IFarmToolStateManager FarmToolManager { get; private set; }
     [field: SerializeField] public IInputManager InputManager { get; private set; }
     [field: SerializeField] public ITimeManager TimeManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
-    [field: SerializeField] public AudioSource Player{ get; private set; }
-
     void Awake()
     {
-        // Initialize the singleton.
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -36,8 +37,7 @@ public class GameManager : MonoBehaviour
             TimeManager = new TimeManager(1, TimeStruct.Default);
             FarmToolManager = GetComponentInChildren<IFarmToolStateManager>();
             InputManager = GetComponentInChildren<IInputManager>();
-
-            TimeManager.SetTick(true);
+            
             Selection.InputManager = InputManager;
             InputManager.RegisterPrimaryInteractionListener(Selection.Interaction);
         }
@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
         selectable = null;
         if(Selection.HoverValidated && Selection.Hovered.Type == type && !InputManager.IsPointerOverUI())
         {
-            selectable = GameManager.Instance.Selection.Hovered.SelectableObject;
+            selectable = Selection.Hovered.SelectableObject;
             return true;
         }
         return false;
@@ -67,13 +67,43 @@ public class GameManager : MonoBehaviour
     {
         Crop.OnPlantCrop += DoPlantCrop;
         Crop.OnHarvestCrop += DoHarvestCrop;
-        StartCoroutine(TimeManager.Tick());
+        StartTime();
     }
     void OnDisable()
     {
+        StopTime();
         Crop.OnPlantCrop -= DoPlantCrop;
         Crop.OnHarvestCrop -= DoHarvestCrop;
-        StopCoroutine(TimeManager.Tick());
+    }
+    private void StartTime()
+    {
+        if (!TimeManager.CanTick)
+        {
+            TimeManager.SetTick(true);
+            StartCoroutine(TimeManager.Tick());
+        }        
+    }
+    private void StopTime()
+    {
+        TimeManager.SetTick(false);
+        StopCoroutine(TimeManager.Tick());        
+    }
+    public void SpeedUpTime()
+    {
+        StartTime();
+        TimeManager.SetTimeDelta(.25f, TIME_STATE.fast);
+        OnTimeUpdated?.Invoke(TimeManager.State);
+    }
+    public void PlayRegularTime()
+    {        
+        StartTime();
+        TimeManager.SetTimeDelta(1f, TIME_STATE.playing);
+        OnTimeUpdated?.Invoke(TimeManager.State);
+    }
+    public void PauseTime()
+    {
+        StopTime();
+        OnTimeUpdated?.Invoke(TimeManager.State);
     }
     public CropData GetOrSetFirstCrop(int modify = 0)
     {
@@ -116,6 +146,7 @@ public class GameManager : MonoBehaviour
     /// <param name="crop"></param>
     public void DoHarvestCrop(CropData crop)
     {
+        OnMoneyUpdated?.Invoke(crop.SellPrice);
         Money += crop.SellPrice;
     }
 

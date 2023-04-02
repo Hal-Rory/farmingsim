@@ -34,7 +34,23 @@ public class FieldStatusUI : MonoBehaviour
                 DisplayCard.SetIcon(Target.HasCrop());
             }
             DisplaySlider.value = Target.WaterLevel;
-            DisplayCard.SetLabel(Target.HasCrop() ? $"{Target.GrowthLevel*100:0.##}%" : "No crop");
+            float status = Target.GrowthLevel;
+            if (status < 0)
+            {
+                DisplayCard.SetLabel("Crop has died.");
+            }
+            else if (status >= 0 && status < 1 && Target.HasCrop())
+            {
+                DisplayCard.SetLabel($"{status * 100:0}%");
+            }
+            else if (status == 0)
+            {
+                DisplayCard.SetLabel($"No crop here.");
+            }
+            else
+            {
+                DisplayCard.SetLabel("Ready to Harvest!");
+            }
         }
     }
 }

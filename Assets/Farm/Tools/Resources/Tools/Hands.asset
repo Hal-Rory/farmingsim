@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ac6143a42bbe2d45b02a6bed8193418, type: 3}
   m_Name: Hands
   m_EditorClassIdentifier: 
-  Name: By hand
+  Name: Hand
   Display: {fileID: 2042879837, guid: bbf098d7a4348e34db569bc4137bbe0a, type: 3}
   <ID>k__BackingField: ha0
   Cap: 1

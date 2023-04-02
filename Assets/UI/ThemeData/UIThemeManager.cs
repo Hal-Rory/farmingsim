@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using UnityEngine;
+using Unity.VisualScripting.FullSerializer;
+using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -35,12 +38,21 @@ public class UIThemeManager
             var path = AssetDatabase.GUIDToAssetPath(guid);
             if(AssetDatabase.LoadAssetAtPath<GameObject>(path) is GameObject go)
             {
-                ThemedUI[] themes = go.GetComponents<ThemedUI>();
+                List<ThemedUI> themes = new List<ThemedUI>(go.GetComponents<ThemedUI>());
+                themes.AddRange(go.GetComponentsInChildren<ThemedUI>());
                 foreach (var theme in themes)
                 {
                     theme.UpdateTheme();
                 }
                 PrefabUtility.SavePrefabAsset(go);
+            }
+        }
+        ThemedUI[] themedGo = UnityEngine.Object.FindObjectsOfType<ThemedUI>();
+        foreach (var item in themedGo)
+        {
+            if (!PrefabUtility.IsPartOfAnyPrefab(item))
+            {
+                item.UpdateTheme();
             }
         }
 #endif

@@ -5,6 +5,15 @@ public class ThemedHighlight : ThemedUI
     public Image Highlight;
     public override void UpdateTheme()
     {
-        Highlight.color = UIThemeManager.HighlightThemeData.HighlightColor;
+        HighlightThemeData t;
+        if (Override != null)
+        {
+            t = Override as HighlightThemeData;
+        }
+        else
+        {
+            t = UIThemeManager.HighlightThemeData;
+        }
+        Highlight.color = t;
     }
 }

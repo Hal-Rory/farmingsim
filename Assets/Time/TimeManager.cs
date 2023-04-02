@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace GameTime
 {
+
     public class TimeManager : ITimeManager
     {
+        
         public TimeStruct _currentTime;
-        private bool CanTick;
+        public bool CanTick { get; private set; }
         private HashSet<ITimeListener> TimeListeners = new HashSet<ITimeListener>();
         private float TimeDelta = 1;
 
@@ -14,6 +16,9 @@ namespace GameTime
         {
             get => _currentTime; 
         }
+
+        public ITimeManager.TIME_STATE State { get; private set; }
+
         public TimeManager(float delta,int time, int date, int month, int year)
         {
             TimeDelta = delta;
@@ -28,8 +33,13 @@ namespace GameTime
         public void SetTick(bool canTick)
         {
             CanTick = canTick;
+            if(!CanTick) State = ITimeManager.TIME_STATE.paused;
         }
-
+        public void SetTimeDelta(float amount, ITimeManager.TIME_STATE state)
+        {
+            State = state;
+            TimeDelta = Mathf.Clamp(amount, .01f, amount);
+        }
         public bool RegisterListener(ITimeListener listener)
         {
             return TimeListeners.Add(listener);

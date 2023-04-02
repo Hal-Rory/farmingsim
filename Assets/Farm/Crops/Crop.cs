@@ -74,10 +74,7 @@ public class Crop
     /// </summary>
     public ICropRender UpdateCropSprite()
     {
-        if(!IsAlive)
-        {
-            return Current.DeadCropRender;
-        }
+        if(!IsAlive) return Current.DeadCropRender;        
         if (!CanHarvest())
         {
             if (Current.GrowthProgressRenders.Length == 0)
@@ -99,8 +96,9 @@ public class Crop
     /// <returns></returns>
     public bool CanHarvest()
     {
+        if (!IsAlive) return false;
         Percentage =  1f - ((CurrentTime * 1f) / (TimeNeeded*1f));
-        return CurrentTime == 0 && IsAlive;
+        return CurrentTime == 0;
     }
 
     /// <summary>
@@ -108,6 +106,7 @@ public class Crop
     /// </summary>
     public void Water()
     {
+        if (!IsAlive) return;
         WaterLevel = WaterMax;
     }
 

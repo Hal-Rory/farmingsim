@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[CreateAssetMenu(fileName = "SelectableThemeData_", menuName = "Themes/New Selectable Theme")]
 public class SelectableThemeData : UIThemeData
 {
     public ColorBlock Colors = 
