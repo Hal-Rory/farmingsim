@@ -4,7 +4,9 @@ using UnityEngine.EventSystems;
 public class DockableUI : DraggableUI
 {
     public bool CheckUI;
-    //[TagSelector]
+#if UNITY_EDITOR
+    [TagSelector]
+#endif
     public string TagFilter= string.Empty;
     public LayerMask Layers;
 

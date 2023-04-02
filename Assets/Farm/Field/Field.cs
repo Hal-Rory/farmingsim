@@ -131,6 +131,7 @@ namespace Farm.Field
                 SetCropRenderer(Current.UpdateCropSprite());
                 if (Current.CanHarvest() && !Particles.isPlaying)
                 {
+                    Particles.gameObject.SetActive(true);
                     Particles.Play();
                 }
             }
@@ -186,7 +187,7 @@ namespace Farm.Field
         private void EmptyPlot()
         {
             if(Particles.isPlaying)
-                Particles.Stop();
+                Particles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             Current = null;
             SetCropRenderer(null);
             TillDecay = TillDecayMax;

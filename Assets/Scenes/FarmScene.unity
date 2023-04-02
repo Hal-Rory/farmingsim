@@ -2505,6 +2505,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1771893309}
     m_Modifications:
+    - target: {fileID: 2385505999049896868, guid: e0e38cc472985d3478a9c652b31aa5a0, type: 3}
+      propertyPath: TagFilter
+      value: Field
+      objectReference: {fileID: 0}
+    - target: {fileID: 2385505999049896868, guid: e0e38cc472985d3478a9c652b31aa5a0, type: 3}
+      propertyPath: Layers.m_Bits
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2385505999049896868, guid: e0e38cc472985d3478a9c652b31aa5a0, type: 3}
+      propertyPath: _snapToOrigin
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3349427355640811894, guid: e0e38cc472985d3478a9c652b31aa5a0, type: 3}
       propertyPath: m_Name
       value: DockableCard
