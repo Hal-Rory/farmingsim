@@ -131,7 +131,6 @@ namespace Farm.Field
                 SetCropRenderer(Current.UpdateCropSprite());
                 if (Current.CanHarvest() && !Particles.isPlaying)
                 {
-                    Particles.gameObject.SetActive(true);
                     Particles.Play();
                 }
             }
