@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UI;
 using static UnityEditor.Progress;
 
@@ -18,13 +19,9 @@ namespace Items
         private Inventory Inventory;
         private int LastIndex;
         
-        public void SetInventory(GameObject inventoryObj)
-        {
-
-        }
-
         public void SetInventory(Inventory inv)
         {
+            Assert.IsNotNull(CardParent, $"No card parent for {name}");
             Inventory = inv;
             GetInventorySlots();
             if (Inventory.Count == 0)
@@ -76,7 +73,6 @@ namespace Items
                 }
             }
         }
-        public Vector3 test;
         protected void SetCard(Card card)
         {
             Hoverable hoverable = card.GetComponent<Hoverable>();
