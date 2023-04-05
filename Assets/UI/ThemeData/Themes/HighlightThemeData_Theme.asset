@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: HighlightThemeData_Theme
   m_EditorClassIdentifier: 
   ID: HighlightThemeData_Theme
-  HighlightColor: {r: 0.1254902, g: 0.1137255, b: 0.28235295, a: 0.2509804}
+  HighlightColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 0.2509804}

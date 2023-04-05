@@ -7,6 +7,7 @@ public class FieldStatusUI : MonoBehaviour
     public Card DisplayCard;
     public Slider DisplaySlider;
     private Field Target;
+    private bool DisplaySet;
     private void Start()
     {
         DisplayCard.gameObject.SetActive(false);
@@ -17,21 +18,24 @@ public class FieldStatusUI : MonoBehaviour
         {
             Target = selectable.GetComponent<Field>();
             if (!DisplayCard.gameObject.activeSelf)
-            {                
+            {
+                DisplaySet = false;
                 DisplayCard.gameObject.SetActive(true);
             }
             if(Target.HasCrop()) DisplayCard.SetIcon(Target.CropStats.Display);
         } else if(Target != null)
         {
             Target = null;
+            DisplaySet = false;
             DisplayCard.gameObject.SetActive(false);
         }  
         
-        if(Target!= null)
+        if(Target != null)
         {
-            if (DisplayCard.Icon.IsActive() != Target.HasCrop())
+            if (!DisplaySet)
             {
-                DisplayCard.SetIcon(Target.HasCrop());
+                DisplaySet = true;
+                DisplayCard.SetIcon(Target.CropStats?.Display);
             }
             DisplaySlider.value = Target.WaterLevel;
             float status = Target.GrowthLevel;

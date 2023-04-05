@@ -12,6 +12,9 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
     private void Start()
     {
         SwapTool(TOOL_TYPE.Hands);
+        foreach (var tool in FarmToolCollection) {
+            GameManager.Instance.AddItem(tool.Data, 1);
+        }
     }
     public string GetCurrentToolName()
     {

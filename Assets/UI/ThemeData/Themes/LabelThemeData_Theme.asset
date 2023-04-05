@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: LabelThemeData_Theme
   Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-  FontColor: {r: 0.078431375, g: 0.08235294, b: 0.09019608, a: 1}
+  FontColor: {r: 0.15294118, g: 0.16470589, b: 0.17254902, a: 1}
   FontSize: 15

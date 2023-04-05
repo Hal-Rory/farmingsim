@@ -6,6 +6,7 @@ namespace Items
     {
         public SELECTABLE_TYPE DataType { get; }
         public string Name;
+        public string Description;
         public Sprite Display;
         [field: SerializeField] public string ID { get; protected set; }
         public int Cap = 1;

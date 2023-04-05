@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     [field: SerializeField] public IInputManager InputManager { get; private set; }
     [field: SerializeField] public ITimeManager TimeManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
+    [SerializeField] private InventoryUIManager InventoryUI;
+    [SerializeField] private Inventory GameInventory;
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -40,12 +42,23 @@ public class GameManager : MonoBehaviour
             
             Selection.InputManager = InputManager;
             InputManager.RegisterPrimaryInteractionListener(Selection.Interaction);
+
+            InventoryUI.SetInventory(GameInventory);
         }
         GetOrSetFirstCrop();
     }
     private void OnDestroy()
     {
         if(Instance == this) InputManager.UnregisterPrimaryInteractionListener(Selection.Interaction);
+    }
+
+    public void AddItem(ObjData item, int amount)
+    {
+        GameInventory.AddItem(item, amount);
+    }
+    public bool RemoveItem(ObjData item, int amount)
+    {
+        return GameInventory.RemoveItem(item, amount);
     }
 
     public bool TryGetCurrentHovered(SELECTABLE_TYPE type, out GameObject selectable)
@@ -146,8 +159,9 @@ public class GameManager : MonoBehaviour
     /// <param name="crop"></param>
     public void DoHarvestCrop(CropData crop)
     {
-        OnMoneyUpdated?.Invoke(crop.SellPrice);
+        //OnMoneyUpdated?.Invoke(crop.SellPrice);
         Money += crop.SellPrice;
+        GameInventory.AddItem(crop, 1);
     }
 
     /// <summary>

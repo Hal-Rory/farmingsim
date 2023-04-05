@@ -14,22 +14,26 @@ public class Card : MonoBehaviour, IFilterable
     }
     public void SetIcon(Sprite sprite)
     {
-        Icon.sprite = sprite;
-    }
-    public void SetIcon(bool enabled)
-    {
-        Icon.gameObject.SetActive(enabled);
+        if (sprite == null)
+        {
+            Icon.enabled = false;
+        }
+        else
+        {
+            Icon.enabled = true;
+            Icon.sprite = sprite;
+        }
     }
     public void Set(string id, string label, Sprite sprite)
     {
         ID = id;
         Label.text = label;
-        Icon.sprite = sprite;
+        SetIcon(sprite);
     }
     public virtual void SetEmpty(string label)
     {
         ID = string.Empty;
-        Icon.enabled = false;
+        SetIcon(null);
         Label.text = label;
     }
 }

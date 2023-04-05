@@ -2,11 +2,17 @@ using Items;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 [Serializable]
 public class Inventory
 {
     private List<Item> Items = new List<Item>();
+    public int CurrentIndex = -1;
+    public int Count => Items.Count;
+    public int Max = 1;
+    public delegate void StateChangedHandler(Item item);
+    public event StateChangedHandler OnUpdated;
     public Item this[int key] { get 
         { 
             if(key < Items.Count && key >= 0)
@@ -32,10 +38,7 @@ public class Inventory
             return null;
         }
     }
-    public int CurrentIndex = -1;
-    public int Count => Items.Count;
-    public delegate void StateChangedHandler();
-    public StateChangedHandler OnUpdated;
+    
     public override string ToString()
     {
         return $"{(Get() != null ? Get().Data.Name : "None")}";
@@ -93,35 +96,57 @@ public class Inventory
     /// <returns>If adding, returns true. If removing, returns if it was present</returns>
     public bool ModifyAmount(ObjData selection, int amount)
     {
-        Item item = this[selection.ID];
         if (amount >= 0)
         {
-            if (item != null)
-            {
-                item.Amount += amount;
-            }
-            else
-            {
-                Items.Add(new Item(selection, amount));
-            }
-            Set(0);
-            OnUpdated?.Invoke();
-            return true;
+            return AddItem(selection, amount);
         } else
         {
-            if (item != null)
-            {
-                item.Amount += amount;
-                if(item.Amount <= 0)
-                {
-                    Items.Remove(item);
-                }
-                Set(0);
-                OnUpdated?.Invoke();
-                return true;
-            }
-            return false;
+            return RemoveItem(selection, amount);
         }
+    }
+    /// <summary>
+    /// Remove item if it exists
+    /// </summary>
+    /// <param name="selection"></param>
+    /// <param name="amount">Will take -abs of this value</param>
+    /// <returns></returns>
+    public bool RemoveItem(ObjData selection, int amount)
+    {
+        Item item = this[selection.ID];
+        if (item == null) return false;
+        int adjusted = Math.Abs(amount);
+        item.Amount -= adjusted;
+        if (item.Amount <= 0)
+        {
+            Items.Remove(item);
+        }
+        Set(0);
+        OnUpdated?.Invoke(item);
+        return true;
+    }
+    /// <summary>
+    /// Add item
+    /// </summary>
+    /// <param name="selection"></param>
+    /// <param name="amount">Will take abs of this value</param>
+    /// <returns></returns>
+    public bool AddItem(ObjData selection, int amount)
+    {
+        if (Count >= Max) return false;
+        int adjusted = Math.Abs(amount);
+        Item item = this[selection.ID];
+        if (item != null)
+        {
+            item.Amount += adjusted;
+        }
+        else
+        {
+            item = new Item(selection, adjusted);
+            Items.Add(item);
+        }
+        Set(0);
+        OnUpdated?.Invoke(item);
+        return true;
     }
 
     public bool Contains(ObjData selection)
