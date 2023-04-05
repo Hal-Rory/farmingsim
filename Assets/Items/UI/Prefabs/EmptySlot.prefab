@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5088376655741050804}
   - component: {fileID: 5088376655741050801}
   - component: {fileID: 5088376655741050806}
-  - component: {fileID: 5088376655741050803}
   - component: {fileID: 7094128089702977268}
   m_Layer: 5
   m_Name: EmptySlot
@@ -62,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9450981, g: 0.91372555, b: 0.81568635, a: 1}
+  m_Color: {r: 0.078431375, g: 0.08235294, b: 0.09019608, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -79,21 +78,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &5088376655741050803
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5088376655741050805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4a6ca4fdc569cd40ab83fe8fd8543c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ManualUpdate: 0
-  Override: {fileID: 0}
-  Background: {fileID: 5088376655741050806}
 --- !u!114 &7094128089702977268
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -107,6 +91,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <InventoryCard>k__BackingField: {fileID: 1573574679554121036}
+  Index: 0
 --- !u!1001 &807300612201775283
 PrefabInstance:
   m_ObjectHideFlags: 0
