@@ -5,7 +5,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
 {
     [SerializeField] private MeshRenderer Renderer;
     [SerializeField] private MeshFilter Mesh;
-    private Vector3 StartingPosition;
+    private Vector3 StartingLocalPosition;
     [SerializeField] private bool UpdateInEditor;
     [SerializeField] private TOOL_TYPE Type;
     [SerializeField] private Animator Animation;
@@ -31,7 +31,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
 
     private void Awake()
     {
-        StartingPosition= transform.position;        
+        StartingLocalPosition= transform.localPosition;        
     }
 
     public void Register()
@@ -108,7 +108,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
                 Animate(false);
                 CanAnimate = false;            
             }
-            transform.position = StartingPosition;
+            transform.localPosition = StartingLocalPosition;
         }
     }
 

@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
             
             Selection.InputManager = InputManager;
             InputManager.RegisterPrimaryInteractionListener(Selection.Interaction);
+            InputManager.SetMouseFocus(true);
 
             InventoryUI.SetInventory(GameInventory);
             LightListener.LightManager = LightManager;

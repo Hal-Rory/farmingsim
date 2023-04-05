@@ -78,4 +78,20 @@ public class InputManager3D : MonoBehaviour, IInputManager
     {
         return EventSystem.current.IsPointerOverGameObject();
     }
+
+    public Vector3 GetMovementVector()
+    {
+        float horiz = Input.GetButton("Horizontal") ? Input.GetAxis("Horizontal") != 0 ? Mathf.Sign(Input.GetAxis("Horizontal")) : 0 : 0;
+        float vert = Input.GetButton("Vertical") ? Input.GetAxis("Vertical") != 0 ? Mathf.Sign(Input.GetAxis("Vertical")) : 0 : 0;
+        return new Vector3(horiz, vert, vert);
+    }
+    public Vector2 GetLookVector()
+    {        
+        return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+    }
+
+    public void SetMouseFocus(bool focused)
+    {        
+        Cursor.lockState = focused ? CursorLockMode.Locked : CursorLockMode.None;        
+    }
 }
