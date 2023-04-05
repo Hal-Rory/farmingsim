@@ -8,6 +8,19 @@ using static ITimeManager;
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
 {
+    private class LightTimeListener : ITimeListener
+    {
+        public LightManager3D LightManager;
+        public void ClockUpdate(TimeStruct timestamp)
+        {
+            float rotation = 360;
+            float deltaPerHour = rotation / 24;
+            LightManager.SetLightState(deltaPerHour);
+        }
+    }
+
+    [SerializeField] private float FastFowardDelta = .5f;
+    [SerializeField] private float TimeDelta = 1f;
     public static GameManager Instance;
     public int Money;
     public Dictionary<string, CropData> AllCrops { get; private set; } = new Dictionary<string, CropData>();
@@ -15,13 +28,16 @@ public class GameManager : MonoBehaviour
     public TOOL_TYPE SelectedTool;
     public event Action<CropData> OnCropSet;
     public event Action<int> OnMoneyUpdated;
-    public event Action<TIME_STATE> OnTimeUpdated;
+    public event Action<TIME_STATE> OnTimeUpdated;    
     [field: SerializeField] public IFarmToolStateManager FarmToolManager { get; private set; }
     [field: SerializeField] public IInputManager InputManager { get; private set; }
     [field: SerializeField] public ITimeManager TimeManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
+    [SerializeField] private LightManager3D LightManager;
+    [SerializeField] private LightTimeListener LightListener;
     [SerializeField] private InventoryUIManager InventoryUI;
     [SerializeField] private Inventory GameInventory;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -37,6 +53,7 @@ public class GameManager : MonoBehaviour
                 AllCrops.TryAdd(crop.ID, crop);
             }
             TimeManager = new TimeManager(1, TimeStruct.Default);
+            LightListener = new LightTimeListener();
             FarmToolManager = GetComponentInChildren<IFarmToolStateManager>();
             InputManager = GetComponentInChildren<IInputManager>();
             
@@ -44,12 +61,15 @@ public class GameManager : MonoBehaviour
             InputManager.RegisterPrimaryInteractionListener(Selection.Interaction);
 
             InventoryUI.SetInventory(GameInventory);
+            LightListener.LightManager = LightManager;
+            TimeManager.RegisterListener(LightListener);
         }
         GetOrSetFirstCrop();
     }
     private void OnDestroy()
     {
         if(Instance == this) InputManager.UnregisterPrimaryInteractionListener(Selection.Interaction);
+        if(Instance == this) TimeManager.UnregisterListener(LightListener);
     }
 
     public void AddItem(ObjData item, int amount)
@@ -104,13 +124,13 @@ public class GameManager : MonoBehaviour
     public void SpeedUpTime()
     {
         StartTime();
-        TimeManager.SetTimeDelta(.25f, TIME_STATE.fast);
+        TimeManager.SetTimeDelta(FastFowardDelta, TIME_STATE.fast);
         OnTimeUpdated?.Invoke(TimeManager.State);
     }
     public void PlayRegularTime()
     {        
         StartTime();
-        TimeManager.SetTimeDelta(1f, TIME_STATE.playing);
+        TimeManager.SetTimeDelta(TimeDelta, TIME_STATE.playing);
         OnTimeUpdated?.Invoke(TimeManager.State);
     }
     public void PauseTime()

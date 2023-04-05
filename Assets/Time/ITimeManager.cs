@@ -14,4 +14,5 @@ public interface ITimeManager
     public string DisplayTime();
     public void SetTick(bool canTick);
     public void SetTimeDelta(float amount, TIME_STATE state);
+    public float TimeDelta { get; }
 }

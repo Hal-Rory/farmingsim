@@ -10,7 +10,7 @@ namespace GameTime
         public TimeStruct _currentTime;
         public bool CanTick { get; private set; }
         private HashSet<ITimeListener> TimeListeners = new HashSet<ITimeListener>();
-        private float TimeDelta = 1;
+        public float TimeDelta { get; private set; } = 1;
 
         public TimeStruct CurrentTime
         {

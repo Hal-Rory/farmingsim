@@ -1,17 +1,18 @@
 
 using System;
+using UnityEngine;
 
 namespace GameTime
 {
     public enum DayOfWeek
     {
-        Saturday = 0,
-        Sunday = 1,
-        Monday = 2,
-        Tuesday = 3,
-        Wednesday = 4,
-        Thursday = 5,
-        Friday = 6,
+        Sunday = 0,
+        Monday = 1,
+        Tuesday = 2,
+        Wednesday = 3,
+        Thursday = 4,
+        Friday = 5,
+        Saturday = 6,
     }
     [Serializable]
     public struct TimeStruct
@@ -20,7 +21,7 @@ namespace GameTime
         public int Year;
         public int Month;
         public int Date;
-        public int Hour;
+        public int Hour;        
         public static int DayLength => 23; //hours in day, minus 1 to account for 0
         public static int MonthLength => 27; //days in a month, minus 1 to account for 0
         public static int YearLength => 11; //months in a year, minus 1 to account for 0
@@ -45,78 +46,41 @@ namespace GameTime
         }
         public void AddTime(int time)
         {
-            if (Math.Sign(time) > 0)
+            if (time < 0) { throw new ArgumentOutOfRangeException("time"); }
+            int actual = Hour + time;
+            Hour = actual.Repeat(DayLength+1);
+            if (actual > DayLength)
             {
-                Hour += time;
-                if (Hour > DayLength)
-                {
-                    int dayAmt = Hour / DayLength;
-                    Hour -= (DayLength * dayAmt);
-                    AddDate(dayAmt);
-                }
-            } else
-            {
-                Hour += time;
-                if (Hour < 0)
-                {
-                    int adjusted = DayLength - (Math.Abs(time) - Math.Abs(Hour));
-                    Hour = adjusted;
-                    int dayAmt = time / DayLength;
-                    AddDate(dayAmt);
-                }
-            }
+                int dayAmt = actual / DayLength;                
+                AddDate(dayAmt);
+            }            
         }
         public void AddDate(int date)
         {
-            if (Math.Sign(date) > 0)
+            if (date < 0) { throw new ArgumentOutOfRangeException("date"); }
+            int actual = Date + date;
+            Date = actual.Repeat(MonthLength+1);
+            if (actual >= MonthLength+1)
             {
-                Date += date;
-                if (Date > MonthLength)
-                {
-                    int monthAmt = Date / MonthLength;
-                    Date -= (MonthLength * monthAmt);
-                    AddMonth(monthAmt);
-                }
+                int monthAmt = actual / MonthLength;
+                AddMonth(monthAmt);
             }
-            else
-            {
-                Date += date;
-                if (Date < 0)
-                {
-                    int adjusted = MonthLength - (Math.Abs(date) - Math.Abs(Date));
-                    Date = adjusted;
-                    int monthAmt = date / MonthLength;
-                    AddMonth(monthAmt);
-                }
-            }
-            Day = (DayOfWeek)(date % 7);
+            Day = (DayOfWeek)(Date % 7);
         }
         public void AddMonth(int month)
         {
-            if (Math.Sign(month) > 0)
+            if (month < 0) { throw new ArgumentOutOfRangeException("month"); }
+            int actual = Month + month;
+            Month = actual.Repeat(YearLength + 1);
+            if (actual >= YearLength+1)
             {
-                Month += month;
-                if (Month > YearLength)
-                {
-                    int yearAmt = Month / YearLength;
-                    Month -= (YearLength * yearAmt);
-                    AddYear(yearAmt);
-                }
-            }
-            else
-            {
-                Month += month;
-                if (Month < 0)
-                {
-                    int adjusted = YearLength - (Math.Abs(month) - Math.Abs(Month));
-                    Month = adjusted;
-                    int yearAmt = month / YearLength;
-                    AddYear(yearAmt);
-                }
+                int yearAmt = actual / YearLength;
+                AddYear(yearAmt);
             }
         }
         public void AddYear(int year)
         {
+            if (year < 0) { throw new ArgumentOutOfRangeException("year"); }
             Year = Math.Clamp(Year + year, 0, YearMax);
         }
 
@@ -161,7 +125,7 @@ namespace GameTime
         }
         public override string ToString()
         {
-            return $"{Month+1}/{Date + 1}/{Year + 1}({Day + 1}) {Hour + 1}:00";
+            return $"{(Month+1):00}/{(Date + 1):00}/{(Year + 1):0000}({Day}) {Hour:00}:00";
         }
         
     }
