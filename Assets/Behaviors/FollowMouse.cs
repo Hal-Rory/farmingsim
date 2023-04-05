@@ -21,7 +21,7 @@ public class FollowMouse : MonoBehaviour
         } else if(IsZooming)
         {
             Vector3 newPos = transform.position;
-            newPos.z += InputManager.GetPointerInput().y * Time.deltaTime;
+            newPos.z += InputManager.GetPointerDeltaInput().y * Time.deltaTime;
             transform.position = newPos;
         }
     }

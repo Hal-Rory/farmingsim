@@ -82,7 +82,6 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
 
     private void Start()
     {
-
         if (FarmManager.TryGetTool(GameManager.Instance.SelectedTool, out IFarmToolCollection farmTool)){
             SetToolRender(farmTool);
         }
@@ -118,7 +117,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
         switch (farmTool.Data.ToolType)
         {
             case TOOL_TYPE.Hands:
-            case TOOL_TYPE.Dig:
+            case TOOL_TYPE.Dig:            
                 Renderer.transform.localScale = new Vector3(-50, 50, 50);
                 break;
             case TOOL_TYPE.Cut:

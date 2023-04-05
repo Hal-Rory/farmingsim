@@ -12,6 +12,8 @@ namespace Entities
         private IInputManager InputManager => GameManager.Instance.InputManager;
         [SerializeField] private Transform View;
         private Vector3 ViewRotateVector;
+        [SerializeField]
+        private float LookSpeed = 5;
         protected override void EntityStart()
         {
             foreach (var t in StartingStats)
@@ -25,10 +27,10 @@ namespace Entities
         {
             if (!Busy)
             {                
-                MoveVector = transform.rotation * InputManager.GetMovementVector() * Time.deltaTime * Speed;
+                MoveVector = transform.rotation * InputManager.GetMovementVector().FlattenY() * Time.deltaTime * Speed;
                 if (!AutoMove)
                 {
-                    Rotation(InputManager.GetLookVector());
+                    Rotation(InputManager.GetLookVector() * Time.deltaTime* LookSpeed);
                     Movement(MoveVector);
                     SetState(PlayerStates.inMotion);
                 }

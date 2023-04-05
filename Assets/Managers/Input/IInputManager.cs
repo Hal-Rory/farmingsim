@@ -10,7 +10,7 @@ public interface IInputManager
     public void UnregisterPrimaryInteractionListener(Action<bool> listener);
     public void RegisterSecondaryInteractionListener(Action<bool> listener);
     public void UnregisterSecondaryInteractionListener(Action<bool> listener);
-    public Vector3 GetPointerInput();
+    public Vector2 GetPointerDeltaInput();
     public Ray GetPointerWorldPosition();
     public bool IsPointerOverUI();
     public Vector3 GetMovementVector();

@@ -2,13 +2,14 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InputManager3D : MonoBehaviour, IInputManager
+public class InputManagerBasic : MonoBehaviour, IInputManager
 {
     [SerializeField] private Camera Cam;
     [SerializeField] private float RayDist = 100;
     public Camera ActiveCamera => Cam;
     public Action<bool> OnPrimaryInteraction;
     public Action<bool> OnSecondaryInteraction;
+    private Vector3 PreviousMousePosition;
 
     public Ray GetPointerWorldPosition()
     {
@@ -67,9 +68,8 @@ public class InputManager3D : MonoBehaviour, IInputManager
     {
         OnSecondaryInteraction -= listener;
     }
-    //todo: swap with input system asap
-    private Vector3 PreviousMousePosition;
-    public Vector3 GetPointerInput()
+    
+    public Vector2 GetPointerDeltaInput()
     {
         return (PreviousMousePosition- Input.mousePosition).normalized;
     }
