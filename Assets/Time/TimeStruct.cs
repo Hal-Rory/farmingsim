@@ -21,11 +21,7 @@ namespace GameTime
         public int Year;
         public int Month;
         public int Date;
-        public int Hour;        
-        public static int DayLength => 23; //hours in day, minus 1 to account for 0
-        public static int MonthLength => 27; //days in a month, minus 1 to account for 0
-        public static int YearLength => 11; //months in a year, minus 1 to account for 0
-        public static int YearMax => 9999; //max amount of years, world ends
+        public int Hour;                
         public static TimeStruct Default => new TimeStruct(0, 0, 0, 0);        
         public TimeStruct(TimeStruct other)
         {
@@ -48,10 +44,10 @@ namespace GameTime
         {
             if (time < 0) { throw new ArgumentOutOfRangeException("time"); }
             int actual = Hour + time;
-            Hour = actual.Repeat(DayLength+1);
-            if (actual > DayLength)
+            Hour = actual.Repeat(TimeUtility.DayLength+1);
+            if (actual > TimeUtility.DayLength)
             {
-                int dayAmt = actual / DayLength;                
+                int dayAmt = actual / TimeUtility.DayLength;                
                 AddDate(dayAmt);
             }            
         }
@@ -59,10 +55,10 @@ namespace GameTime
         {
             if (date < 0) { throw new ArgumentOutOfRangeException("date"); }
             int actual = Date + date;
-            Date = actual.Repeat(MonthLength+1);
-            if (actual >= MonthLength+1)
+            Date = actual.Repeat(TimeUtility.MonthLength +1);
+            if (actual >= TimeUtility.MonthLength +1)
             {
-                int monthAmt = actual / MonthLength;
+                int monthAmt = actual / TimeUtility.MonthLength;
                 AddMonth(monthAmt);
             }
             Day = (DayOfWeek)(Date % 7);
@@ -71,17 +67,17 @@ namespace GameTime
         {
             if (month < 0) { throw new ArgumentOutOfRangeException("month"); }
             int actual = Month + month;
-            Month = actual.Repeat(YearLength + 1);
-            if (actual >= YearLength+1)
+            Month = actual.Repeat(TimeUtility.YearLength + 1);
+            if (actual >= TimeUtility.YearLength +1)
             {
-                int yearAmt = actual / YearLength;
+                int yearAmt = actual / TimeUtility.YearLength;
                 AddYear(yearAmt);
             }
         }
         public void AddYear(int year)
         {
             if (year < 0) { throw new ArgumentOutOfRangeException("year"); }
-            Year = Math.Clamp(Year + year, 0, YearMax);
+            Year = Math.Clamp(Year + year, 0, TimeUtility.YearMax);
         }
 
         public int CompareTime(TimeStruct other)

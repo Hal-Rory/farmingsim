@@ -104,10 +104,10 @@ namespace Farm.Field
         {
             if (WaterDecay > 0)
             {
-                float originalDecay = LastWaterLevel / Mathf.CeilToInt(WaterDecayDelta / (TimeStruct.DayLength + 1));
-                float currentDecay = WaterDecay / Mathf.CeilToInt(WaterDecayDelta / (TimeStruct.DayLength + 1));
+                float originalDecay = LastWaterLevel / Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
+                float currentDecay = WaterDecay / Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
                 WaterLevel = currentDecay / originalDecay;
-                WaterDecay -= Mathf.CeilToInt(WaterDecayDelta / (TimeStruct.DayLength + 1));
+                WaterDecay -= Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
             }
             else
             {

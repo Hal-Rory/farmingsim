@@ -164,7 +164,13 @@ public class GameManager : MonoBehaviour
     {
         return GetOrSetFirstCrop(1);
     }
-
+    public void SelectFromInventory(string ID)
+    {        
+        if(GameInventory.Set(ID, out Item item) && item.Data is CropData)
+        {
+            SelectedCropToPlant = item.Data.ID;
+        }
+    }
     /// <summary>
     /// Called when a crop has been planted.
     /// </summary>

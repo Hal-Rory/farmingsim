@@ -12,7 +12,6 @@ namespace Items
     {
         [SerializeField] private List<InventoryUISlot> Slots = new List<InventoryUISlot>();
         [SerializeField] private Transform CardParent;
-        [SerializeField] private GameObject CardPrefab;
         [SerializeField] private GameObject SlotPrefab;
         [SerializeField] private InfoHeader TooltipCard;
         [SerializeField] private bool ParentOrdered;
@@ -73,7 +72,7 @@ namespace Items
                 }
             }
         }
-        protected void SetCard(Card card)
+        protected virtual void SetCard(Card card)
         {
             Hoverable hoverable = card.GetComponent<Hoverable>();
             void PointerEnter(Hoverable hoverable)

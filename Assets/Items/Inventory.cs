@@ -43,8 +43,16 @@ public class Inventory
     {
         return $"{(Get() != null ? Get().Data.Name : "None")}";
     }
-
-    public void Set(int direction)
+    public bool Set(string key, out Item item)
+    {
+        item = this[key];
+        if (item == null) {
+            CurrentIndex = Items.IndexOf(item);
+            return true;
+        }
+        return false;
+    }
+    public bool Set(int direction)
     {
         if (Items.Count <= 0) CurrentIndex = -1;
         else
@@ -53,6 +61,7 @@ public class Inventory
             if (CurrentIndex == Items.Count)
                 CurrentIndex = -1;
         }
+        return CurrentIndex != -1;
     }
     public Item Get()
     {

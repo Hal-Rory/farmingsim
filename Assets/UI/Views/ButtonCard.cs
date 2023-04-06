@@ -10,6 +10,11 @@ public class ButtonCard : Card
     public void Set(string ID, string label, Sprite icon, UnityAction callback)
     {
         Set(ID, label, icon);
+        SetAction(callback);
+    }
+
+    public void SetAction(UnityAction callback)
+    {
         Selectable.onClick.RemoveAllListeners();
         Selectable.onClick.AddListener(callback);
     }
