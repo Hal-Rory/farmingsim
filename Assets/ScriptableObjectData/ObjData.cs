@@ -3,8 +3,7 @@ namespace Items
 {
     public enum RANK_NAME { Bronze, Silver, Gold, Plantinum };
     public class ObjData : ScriptableObject, IFilterable
-    {
-        public SELECTABLE_TYPE DataType { get; }
+    {        
         public string Name;
         public string Description;
         public Sprite Display;

@@ -14,9 +14,9 @@ public class FieldStatusUI : MonoBehaviour
     }
     public void Update()
     {
-        if (GameManager.Instance.TryGetCurrentHovered(SELECTABLE_TYPE.field, out GameObject selectable))
+        if (GameManager.Instance.Selection.TryGetCurrentHovered(out ISelectable selectable) && selectable is Field field)
         {
-            Target = selectable.GetComponent<Field>();
+            Target= field;
             if (!DisplayCard.gameObject.activeSelf)
             {
                 DisplaySet = false;

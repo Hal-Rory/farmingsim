@@ -1,8 +1,8 @@
 using GameTime;
 using Items;
+using System;
 using UnityEngine;
 using UnityEngine.Assertions;
-using static UnityEngine.ParticleSystem;
 
 namespace Farm.Field
 {
@@ -18,6 +18,7 @@ namespace Farm.Field
         [SerializeField] private ParticleSystem Particles;
         [SerializeField] private MeshFieldBase FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
         public long TimeNeeded => Current.TimeNeeded;
+        private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;        
         public float GrowthLevel
         {
             get
@@ -61,13 +62,11 @@ namespace Farm.Field
         }
         #region ISelectable
         public GameObject SelectableObject { get => gameObject; }
-        public bool Selected { get; private set; }
-        public bool Hovered { get; private set; }
-        private bool _selectable = true;
-        public bool Selectable { get => _selectable; set => _selectable = value; }
-        public bool CanReselect => true;
-        public SELECTABLE_TYPE Type => SELECTABLE_TYPE.field;
-
+        [field: SerializeField] public bool Selectable { get; private set; } = true;
+        public SELECTABLE_TYPE Type => SELECTABLE_TYPE.prop;
+        public static Field Hovered;
+        public static event Action<Field> OnFieldSelected;
+        public static event Action<Field> OnHoveredChanged;
         public void OnDeselect()
         {
             print("deselected");
@@ -75,24 +74,23 @@ namespace Farm.Field
 
         public void OnEndHover()
         {
-            Hovered = false;
+            if(Hovered == this)
+                Hovered = null;
         }
 
         public void OnSelect()
         {
-            Interact();
+            OnFieldSelected?.Invoke(this);
         }
 
         public void OnStartHover()
         {
-            Hovered =true;
+            OnHoveredChanged?.Invoke(this);            
         }
 
         public void WhileHovering()
         {
-            if (!Selected)
-            {
-            }
+            Hovered = this;
         }
 
         public void WhileSelected()
@@ -147,7 +145,7 @@ namespace Farm.Field
         }
         public void Interact()
         {
-            switch (GameManager.Instance.SelectedTool)
+            switch (FarmManager.GetCurrentToolType())
             {
                 case TOOL_TYPE.Water:
                     if (State != IField.FieldState.untilled)
@@ -197,7 +195,7 @@ namespace Farm.Field
         /// Called when we interact with a tilled tile and we have crops to plant.
         /// </summary>
         /// <param name="crop"></param>
-        public void PlantNewCrop(CropData crop)
+        public void PlantNewCrop(SeedData crop)
         {
             if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop())
                 return;            
@@ -235,10 +233,10 @@ namespace Farm.Field
                 {
                     SetState(IField.FieldState.watered_tilled);
                 }
-                
-                if(GameManager.Instance.FarmToolManager.TryGetTool(GameManager.Instance.SelectedTool, out IFarmToolCollection collection))
+                IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
+                if (farmTool != null)
                 {
-                    WaterDecay += Mathf.CeilToInt(Mathf.Clamp(collection.Data.Attack, 1, collection.Data.Attack));
+                    WaterDecay += Mathf.CeilToInt(Mathf.Clamp(farmTool.Data.Attack, 1, farmTool.Data.Attack));
                     WaterLevel = 1;
                     LastWaterLevel = WaterDecay;                    
                 }

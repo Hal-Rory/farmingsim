@@ -3,7 +3,8 @@ using UnityEngine.UI;
 
 public class ProfileInfoPanel : InfoHeader
 {
-    [SerializeField] private Image Bust;    
+    [SerializeField] private Image Bust;
+    [SerializeField] private Sprite Placeholder;
 
     public void SetPanel(string id, string header, string info, Sprite bust)
     {
@@ -15,9 +16,9 @@ public class ProfileInfoPanel : InfoHeader
     {
         Bust.sprite = bust;
     }
-    public override void Clear()
+    public override void SetEmpty()
     {
-        base.Clear();
-        SetBust(null);
+        base.SetEmpty();
+        SetBust(Placeholder);
     }
 }

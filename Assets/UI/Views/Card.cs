@@ -24,6 +24,10 @@ public class Card : MonoBehaviour, IFilterable
             Icon.sprite = sprite;
         }
     }
+    public void Set(string id)
+    {
+        ID = id;
+    }
     public void Set(string id, string label, Sprite sprite)
     {
         ID = id;

@@ -9,7 +9,7 @@ public class FieldUIDock : MonoBehaviour, IUIDock
     {
         if(dockable.TryGetComponent(out IFilterable filter))
         {
-            if(GameManager.Instance.AllCrops.TryGetValue(filter.ID, out CropData toPlant))
+            if(GameManager.Instance.AllCrops.TryGetValue(filter.ID, out SeedData toPlant))
             {
                 print(toPlant.name);
                 Target.PlantNewCrop(toPlant);

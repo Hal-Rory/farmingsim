@@ -4,10 +4,10 @@ using System;
 [Serializable]
 public class Item
 {
-    public ObjData Data;
+    public ItemData Data;
     public int Amount;
 
-    public Item(ObjData item, int amount)
+    public Item(ItemData item, int amount)
     {
         Data = item;
         Amount = amount;

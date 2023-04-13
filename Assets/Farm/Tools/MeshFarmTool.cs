@@ -1,3 +1,4 @@
+using Farm.Field;
 using Items;
 using UnityEngine;
 
@@ -10,7 +11,6 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     [SerializeField] private TOOL_TYPE Type;
     [SerializeField] private Animator Animation;
     private bool CanAnimate;
-    private GameObject Selectable;
     private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
 
     private void OnValidate()
@@ -25,7 +25,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
                 {
                     SetRendererAndMesh(tool as MeshFarmToolCollection);
                 }
-            }            
+            }
         }
     }
 
@@ -38,14 +38,16 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     {
         FarmManager.RegisterListener(SetToolRender);
         GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(DoSwapTool);
-        GameManager.Instance.InputManager.RegisterPrimaryInteractionListener(PlayAnimation);
+        Field.OnFieldSelected += DoFieldSelected;
+        Field.OnHoveredChanged += DoHoveredChanged;
     }
 
     public void Unregister()
     {
         FarmManager.UnregisterListener(SetToolRender);
         GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(DoSwapTool);
-        GameManager.Instance.InputManager.UnregisterPrimaryInteractionListener(PlayAnimation);
+        Field.OnFieldSelected -= DoFieldSelected;
+        Field.OnHoveredChanged -= DoHoveredChanged;
     }
 
     private void PlayAnimation(bool interact)
@@ -63,7 +65,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
             return;
         }
         Animation.SetBool("idle", false);
-        switch (GameManager.Instance.SelectedTool)
+        switch (FarmManager.GetCurrentToolType())
         {
             case TOOL_TYPE.Dig:
                 Animation.Play("Dig");
@@ -80,9 +82,29 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
         }
     }
 
+    public void InteractWithHovered()
+    {
+        if (Field.Hovered != null)
+        {
+            Field.Hovered.Interact();
+        }
+    }
+    private void DoFieldSelected(Field obj)
+    {
+        PlayAnimation(true);
+    }
+    private void DoHoveredChanged(Field obj)
+    {
+        if(obj != Field.Hovered)
+        {
+            Animate(false);
+        }
+    }
     private void Start()
     {
-        if (FarmManager.TryGetTool(GameManager.Instance.SelectedTool, out IFarmToolCollection farmTool)){
+        IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
+        if (farmTool != null)
+        {
             SetToolRender(farmTool);
         }
         Register();
@@ -93,24 +115,17 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     }
     private void Update()
     {
-        if(GameManager.Instance.TryGetCurrentHovered(SELECTABLE_TYPE.field, out GameObject selectable))
+        if(Field.Hovered != null)
         {
-            if(selectable != Selectable || Selectable == null) Animate(false);
-            transform.position = selectable.transform.position + Vector3.up;
-            Selectable= selectable;
+            transform.position = Field.Hovered.transform.position + Vector3.up;
             CanAnimate = true;
-        }
-        else
+        } else if (CanAnimate)
         {
-            if (CanAnimate)
-            {
-                Animate(false);
-                CanAnimate = false;            
-            }
+            Animate(false);
+            CanAnimate = false;
             transform.localPosition = StartingLocalPosition;
-        }
+        }        
     }
-
     private void SetRendererAndMesh(MeshFarmToolCollection farmTool)
     {
         //debug due to odd models

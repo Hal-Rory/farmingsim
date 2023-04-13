@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEditor;
 public abstract class ThemedUI : MonoBehaviour, IThemed
 {
     public bool ManualUpdate;

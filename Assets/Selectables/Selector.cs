@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public enum SELECTABLE_TYPE { none, item, tool, prop, npc, field };
+public enum SELECTABLE_TYPE { none, item, tool, prop, npc, weapon };
 [Serializable]
 public class Selector
 {
@@ -71,8 +71,9 @@ public class Selector
             Hovered.WhileHovering();
         }
         if (SelectedValidated)
-        {
+        {            
             Selected.WhileSelected();
+            ClearSelection();            
         }
     }
 
@@ -82,7 +83,7 @@ public class Selector
         {
             Selected = null;
         }
-        if (selectable != null)
+        if (selectable != null && selectable.Selectable)
         {
             Selected = selectable;
             if (SelectedValidated)
@@ -103,9 +104,24 @@ public class Selector
         }
     }
 
-    public void ClearSelection()
+    public void ClearHovered()
     {
+        if (HoverValidated) Hovered.OnEndHover();
         Hovered = null;
+    }
+    public void ClearSelection()
+    {        
+        if(SelectedValidated) Selected.OnDeselect();
         Selected = null;
+    }
+    public bool TryGetCurrentHovered(out ISelectable selectable)
+    {
+        selectable = null;
+        if (HoverValidated && !InputManager.IsPointerOverUI())
+        {
+            selectable = Hovered;
+            return true;
+        }
+        return false;
     }
 }

@@ -14,6 +14,9 @@ public class ThemedPanel : ThemedUI
         {
             t = UIThemeManager.PanelThemeData;
         }
-        Background.color = t.BackgroundColor;
+        if (Background != null)
+        {
+            Background.color = t.BackgroundColor;
+        }
     }
 }

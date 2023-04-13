@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Wallet
@@ -12,7 +10,7 @@ public class Wallet
     }
     public bool Modify(int amount)
     {
-        if (!CheckAmount(Mathf.Abs(amount))) return false;
+        if (amount < 0 && !CheckAmount(Mathf.Abs(amount))) return false;
         Balance = Mathf.Clamp(Balance + amount, 0, Max);
         return true;
     }

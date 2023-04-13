@@ -11,4 +11,6 @@ public interface IFarmToolStateManager
     public void UnregisterListener(Action<IFarmToolCollection> listener);
     public TOOL_TYPE NextTool();
     public string GetCurrentToolName();
+    public TOOL_TYPE GetCurrentToolType();
+    public IFarmToolCollection GetCurrentTool();
 }

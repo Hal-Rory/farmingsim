@@ -2,7 +2,6 @@ using Items;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 [Serializable]
 public class Inventory
@@ -10,9 +9,11 @@ public class Inventory
     private List<Item> Items = new List<Item>();
     public int CurrentIndex = -1;
     public int Count => Items.Count;
-    public int Max = 1;
+    public int Max = 0;
     public delegate void StateChangedHandler(Item item);
     public event StateChangedHandler OnUpdated;
+    public event StateChangedHandler OnCurrentSet;
+    public bool AutoCleanup = true;
     public Item this[int key] { get 
         { 
             if(key < Items.Count && key >= 0)
@@ -46,13 +47,13 @@ public class Inventory
     public bool Set(string key, out Item item)
     {
         item = this[key];
-        if (item == null) {
+        if (item != null) {
             CurrentIndex = Items.IndexOf(item);
-            return true;
+            OnCurrentSet?.Invoke(item);           
         }
-        return false;
+        return CurrentIndex != -1;
     }
-    public bool Set(int direction)
+    public void Set(int direction)
     {
         if (Items.Count <= 0) CurrentIndex = -1;
         else
@@ -60,8 +61,8 @@ public class Inventory
             CurrentIndex = (int)Mathf.Repeat(CurrentIndex + direction, Items.Count+1);
             if (CurrentIndex == Items.Count)
                 CurrentIndex = -1;
-        }
-        return CurrentIndex != -1;
+        }        
+        OnCurrentSet?.Invoke(CurrentIndex != -1 ? Items[CurrentIndex] : null);
     }
     public Item Get()
     {
@@ -70,6 +71,14 @@ public class Inventory
     public IEnumerable<Item> GetAll()
     {
         return Items;
+    }
+    public IEnumerable<Item> GetAll(List<SELECTABLE_TYPE> types)
+    {        
+        foreach (var item in Items)
+        {
+            if (types.Count == 0 || types.Contains(item.Data.DataType))
+                yield return item;
+        }
     }
     /// <summary>
     /// Add or remove amount from current item, if valid
@@ -103,7 +112,7 @@ public class Inventory
     /// <param name="selection"></param>
     /// <param name="amount"></param>
     /// <returns>If adding, returns true. If removing, returns if it was present</returns>
-    public bool ModifyAmount(ObjData selection, int amount)
+    public bool ModifyAmount(ItemData selection, int amount)
     {
         if (amount >= 0)
         {
@@ -125,7 +134,7 @@ public class Inventory
         if (item == null) return false;
         int adjusted = Math.Abs(amount);
         item.Amount -= adjusted;
-        if (item.Amount <= 0)
+        if (AutoCleanup && item.Amount <= 0)
         {
             Items.Remove(item);
         }
@@ -133,15 +142,28 @@ public class Inventory
         OnUpdated?.Invoke(item);
         return true;
     }
+    public void Cleanup()
+    {
+        Item[] keys = new Item[Items.Count];
+        Items.CopyTo(keys, 0);
+        foreach (var item in keys)
+        {
+            if (item.Amount <= 0)
+            {
+                Items.Remove(item);
+            }
+        }
+    }
+
     /// <summary>
     /// Add item
     /// </summary>
     /// <param name="selection"></param>
     /// <param name="amount">Will take abs of this value</param>
     /// <returns></returns>
-    public bool AddItem(ObjData selection, int amount)
+    public bool AddItem(ItemData selection, int amount)
     {
-        if (Count >= Max) return false;
+        if (Count >= Max && Max > 0) return false;
         int adjusted = Math.Abs(amount);
         Item item = this[selection.ID];
         if (item != null)

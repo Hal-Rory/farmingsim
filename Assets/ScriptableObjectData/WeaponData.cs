@@ -2,8 +2,9 @@ using UnityEngine;
 namespace Items
 {
     [CreateAssetMenu(fileName = "New Weapon", menuName = "Create New Weapon")]
-    public class WeaponData : ObjData
+    public class WeaponData : ItemData
     {
+        public override SELECTABLE_TYPE DataType { get; } = SELECTABLE_TYPE.weapon;
         [Range(1f, 10f)]
         public float Range = 10f;
         public float Attack = 1f;

@@ -1,12 +1,8 @@
 ﻿using UnityEngine;
-
 public interface ISelectable
 {
     SELECTABLE_TYPE Type { get; }
-    public bool Selected { get; }
-    public bool Hovered { get; }
-    public bool Selectable { get; set; }
-    public bool CanReselect { get; }
+    public bool Selectable { get;}
     GameObject SelectableObject { get; }
     public void OnDeselect();
 

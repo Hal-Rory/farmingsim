@@ -21,29 +21,28 @@ public class CropsUI : MonoBehaviour
         GameManager.Instance.OnCropSet -= DoCropSet;
         GameManager.Instance.OnMoneyUpdated -= DoMoneyUpdated;
     }
-    private void DoCropSet(CropData obj)
+    private void DoCropSet(SeedData obj)
     {
-        Header.SetInfo($"${GameManager.Instance.Money}");
+        Header.SetInfo($"${GameManager.Instance.WalletBalance}");
         Display.Set(obj.ID, obj.Name, obj.Display);
     }
     private void DoMoneyUpdated(int amount)
     {
-        StopCoroutine(UpdateMoneyDisplay(amount));
-        Header.SetInfo($"${GameManager.Instance.Money}");
-        StartCoroutine(UpdateMoneyDisplay(amount));
+        StopAllCoroutines();
+        Header.SetInfo($"${GameManager.Instance.WalletBalance-amount}");
+        StartCoroutine(UpdateMoneyDisplay(GameManager.Instance.WalletBalance - amount,amount));
     }
-    private IEnumerator UpdateMoneyDisplay(int amount)
-    {
-        int current = GameManager.Instance.Money;
-        int adjusted = amount == 0 ? 0 : 1;
-        while(adjusted <= amount)
+    private IEnumerator UpdateMoneyDisplay(int start, int amount)
+    {        
+        int adjusted = amount == 0 ? 0 : (int)Mathf.Sign(amount) * 1;
+        while(Mathf.Abs(adjusted) <= Mathf.Abs(amount))
         {
-            Header.SetInfo($"${current+adjusted}");
-            adjusted += 1;
-            ModificationText.SetForTime(DisplaySpeed/2, "+1");
+            Header.SetInfo($"${start+adjusted}");
+            adjusted += (int)Mathf.Sign(amount);
+            ModificationText.SetForTime(DisplaySpeed/2, $"{((int)Mathf.Sign(amount) > 0 ? "+" : "-")}1");
             yield return new WaitForSeconds(DisplaySpeed);
         }
-        Header.SetInfo($"${GameManager.Instance.Money}");
+        Header.SetInfo($"${GameManager.Instance.WalletBalance}");
     }
 
     public void OnGetNextCrop()

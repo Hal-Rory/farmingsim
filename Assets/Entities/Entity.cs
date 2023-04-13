@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Assertions;
 namespace Entities
 {
     public abstract class Entity : MonoBehaviour, IDamageable

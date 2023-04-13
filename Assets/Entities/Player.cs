@@ -1,5 +1,4 @@
 using Items;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -79,11 +78,5 @@ namespace Entities
         }
         #endregion                  
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.collider.TryGetComponent(out PickupItem item))
-            {
-            }
-        }
     }
 }

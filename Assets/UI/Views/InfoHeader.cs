@@ -16,10 +16,10 @@ public class InfoHeader : MonoBehaviour, IFilterable
     public void SetInfo(string info)
     {
         Info.text = info;
-    }    
-    public virtual void Clear()
+    }  
+    public virtual void SetEmpty()
     {
         SetHeader(string.Empty, string.Empty);
-        SetInfo(string.Empty);
+        SetInfo(string.Empty);        
     }
 }

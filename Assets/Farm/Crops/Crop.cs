@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEngine.Events;
 public class Crop
 {
-    private CropData Current;
+    private SeedData Current;
     private float WaterLevel;
-    public static event UnityAction<CropData> OnPlantCrop;
-    public static event UnityAction<CropData> OnHarvestCrop;
+    public static event UnityAction<SeedData> OnPlantCrop;
+    public static event UnityAction<SeedData> OnHarvestCrop;
     public event UnityAction<ICropRender> OnStateUpdate;
     public long TimeNeeded {get; private set; }
     private long CurrentTime;
@@ -17,7 +17,7 @@ public class Crop
 
     public float Percentage { get; private set; }
 
-    public Crop(CropData current)
+    public Crop(SeedData current)
     {
         Current = current;
         TimeNeeded = Current.HoursNeeded + TimeUtility.DaysToHours(Current.DaysNeeded) + TimeUtility.MonthsToHours(Current.MonthsNeeded) + TimeUtility.YearsToHours(Current.YearsNeeded);
@@ -32,7 +32,7 @@ public class Crop
     /// Called when the crop has been planted for the first time.
     /// </summary>
     /// <param name="crop"></param>
-    public void Plant(CropData crop, TimeStruct time)
+    public void Plant(SeedData crop, TimeStruct time)
     {
         Current = crop;
         IsAlive= true;

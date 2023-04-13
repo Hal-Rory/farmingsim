@@ -264,6 +264,7 @@ MonoBehaviour:
   WaterDecayDelta: 1
   Particles: {fileID: 8236378604180707026}
   FieldRenderer: {fileID: 8567597666413887547}
+  <Selectable>k__BackingField: 1
 --- !u!114 &7268368473005427191
 MonoBehaviour:
   m_ObjectHideFlags: 0

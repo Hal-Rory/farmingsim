@@ -95,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Label: {fileID: 2629407673757292170}
   Icon: {fileID: 2629407675296342233}
-  <ID>k__BackingField: wm0
+  <ID>k__BackingField: 
 --- !u!114 &2629407673734606533
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,7 +1,6 @@
 using Items;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
@@ -11,18 +10,34 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
     public Action<MeshFarmToolCollection> OnToolSwapped;
     private void Start()
     {
-        SwapTool(TOOL_TYPE.Hands);
         foreach (var tool in FarmToolCollection) {
-            GameManager.Instance.AddItem(tool.Data, 1);
+            GameManager.Instance.AddWeapon(tool.Data, 1);
         }
+        SwapTool(TOOL_TYPE.Hands);
     }
+
+    public IFarmToolCollection GetCurrentTool()
+    {
+        Item currentItem = GameManager.Instance.GetWeapon();
+        if (currentItem != null && currentItem.Data is ToolData currentTool)
+        {
+            if (TryGetTool(currentTool.ToolType, out IFarmToolCollection tool))
+            {
+                return tool;
+            }
+        }
+        return null;
+    }
+
     public string GetCurrentToolName()
     {
-        if(TryGetTool(GameManager.Instance.SelectedTool, out IFarmToolCollection tool))
-        {
-            return tool.Data.Name;
-        }
-        return string.Empty;
+        IFarmToolCollection tool = GetCurrentTool();
+        return tool != null ? tool.Data.Name : string.Empty;
+    }
+    public TOOL_TYPE GetCurrentToolType()
+    {
+        IFarmToolCollection tool = GetCurrentTool();
+        return tool != null ? tool.Data.ToolType : TOOL_TYPE.None;
     }
     public void SwapTool(TOOL_TYPE type)
     {
@@ -30,15 +45,23 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
         {
             if(item.Data.ToolType == type)
             {
-                GameManager.Instance.SelectedTool = type;
-                OnToolSwapped?.Invoke(item);
-                return;
+                if (GameManager.Instance.SetWeapon(item.Data.ID))
+                {
+                    OnToolSwapped?.Invoke(item);
+                    return;
+                }
             }
         }
     }
     public TOOL_TYPE NextTool()
     {
-        int current = FarmToolCollection.FindIndex(x => x.Data.ToolType == GameManager.Instance.SelectedTool);
+        Item currentItem = GameManager.Instance.GetWeapon();
+        
+        
+        int current = FarmToolCollection.FindIndex((x) =>
+        {
+            return currentItem != null && currentItem.Data is ToolData currentTool && x.Data.ToolType == currentTool.ToolType;            
+        });
         int next = (int)Mathf.Repeat(current +1, FarmToolCollection.Count);
         return FarmToolCollection[next].Data.ToolType;
     }

@@ -36,9 +36,9 @@ public class DetailedInfoPanel : InfoHeader
         if (DetailButton.gameObject.activeSelf)
             DetailButton.onClick.AddListener(invoke);
     }
-    public override void Clear()
+    public override void SetEmpty()
     {
-        base.Clear();
+        base.SetEmpty();
         DetailButton.onClick.RemoveAllListeners();
     }
 }
