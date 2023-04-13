@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using static ITimeManager;
+using static UIManager;
 using static UnityEditor.Progress;
 
 [DefaultExecutionOrder(-1)]
@@ -15,6 +16,7 @@ public class GameManager : MonoBehaviour
     [field: SerializeField] public MarketManager MarketManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
     [field: SerializeField] public PlayerInventoryManager PlayerInventoryManager { get; private set; }
+    [field: SerializeField] public UIManager UIManager { get; private set; }
 
     void Awake()
     {
@@ -44,7 +46,8 @@ public class GameManager : MonoBehaviour
             GameWallet = new Wallet(100);
             Selection.InputManager = InputManager;
             InputManager.RegisterPrimaryInteractionListener(Selection.Interaction);
-            //InputManager.SetMouseFocus(true);
+            UIManager.OnFocusedChanged += DoFocusChanged;
+            UIManager.SetBaseFocus();
             SetMarketInventory();
             LightListener.LightManager = LightManager;
             TimeManager.RegisterListener(LightListener);
@@ -52,8 +55,7 @@ public class GameManager : MonoBehaviour
 
         GetOrSetFirstCrop();
     }
-
-    
+   
     private void OnDestroy()
     {
         if(Instance == this) InputManager.UnregisterPrimaryInteractionListener(Selection.Interaction);
@@ -76,7 +78,13 @@ public class GameManager : MonoBehaviour
         StopTime();
         Crop.OnPlantCrop -= DoPlantCrop;
         Crop.OnHarvestCrop -= DoHarvestCrop;
+    }    
+
+    private void DoFocusChanged(UI_STATE state)
+    {
+        InputManager.SetMouseFocus(state == UI_STATE.Base);
     }
+
     #region Items
     [SerializeField] private List<Item> MarketItems = new List<Item>();
     public Dictionary<string, SeedData> AllCrops { get; private set; } = new Dictionary<string, SeedData>();

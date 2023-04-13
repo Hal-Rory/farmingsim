@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MarketplaceMenu : MonoBehaviour
+public class MarketplaceMenu : UIPage
 {
     [SerializeField] private string MarketName;
     [SerializeField] private InventoryList MarketInventory;
@@ -13,15 +13,14 @@ public class MarketplaceMenu : MonoBehaviour
     [SerializeField] private AmountWindow AmountWindow;
     private MarketManager MarketManager => GameManager.Instance.MarketManager;    
     private int Money;
-
-    void Start()
+    protected override void Start()
     {
-        Assert.IsFalse(string.IsNullOrEmpty(MarketName));
-        ChangeMarket(MarketName);
+        base.Start();
+        if(!string.IsNullOrEmpty(MarketName)) ChangeMarket(MarketName);
         AmountWindow.OnCancelled = () => SetAmountWindowActive(false);
         MarketInventory.SetCardSetup(SelectMarketCard);
         MarketManager.OnMarketUpdate += DoMarketUpdate;
-        MarketManager.OnMarketSet += DoMarketSet;        
+        MarketManager.OnMarketSet += DoMarketSet;
         DoMarketSet(MarketManager.GetItems());
         PlayerInventory.SetCardSetup(SelectPlayerCard);
         PlayerInventory.Validation = ValidateItem;
@@ -50,8 +49,9 @@ public class MarketplaceMenu : MonoBehaviour
         return item.Data is not WeaponData;
     }
 
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         if (GameManager.Instance)
         {
             MarketManager.OnMarketUpdate -= DoMarketUpdate;

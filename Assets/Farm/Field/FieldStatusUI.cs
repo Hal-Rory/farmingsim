@@ -2,14 +2,15 @@ using Farm.Field;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class FieldStatusUI : MonoBehaviour
+public class FieldStatusUI : UIPage
 {
     public Card DisplayCard;
     public Slider DisplaySlider;
     private Field Target;
     private bool DisplaySet;
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         DisplayCard.gameObject.SetActive(false);
     }
     public void Update()

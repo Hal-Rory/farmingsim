@@ -1,23 +1,25 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TimeUI : MonoBehaviour
+public class TimeUI : UIPage
 {
     [SerializeField] private ToggleCard Pause;
     [SerializeField] private ToggleCard Play;
     [SerializeField] private ToggleCard Fast;
     [SerializeField] private Text TimeLabel;
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         Pause.Selectable.onValueChanged.AddListener(TryPauseTime);
         Play.Selectable.onValueChanged.AddListener(TryStartTime);
         Fast.Selectable.onValueChanged.AddListener(TrySpeedupTime);
         DoTimeChanged(GameManager.Instance.TimeManager.State);
         GameManager.Instance.OnTimeUpdated += DoTimeChanged;        
     }
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         Pause.Selectable.onValueChanged.RemoveListener(TryPauseTime);
         Play.Selectable.onValueChanged.RemoveListener(TryStartTime);
         Fast.Selectable.onValueChanged.RemoveListener(TrySpeedupTime);

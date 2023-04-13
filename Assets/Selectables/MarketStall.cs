@@ -22,7 +22,7 @@ public class MarketStall : MonoBehaviour, ISelectable
     public void OnSelect()
     {
         MarketMenu.ChangeMarket(MarketName);
-        MarketMenu.gameObject.SetActive(true);
+        MarketMenu.OpenFocus();
     }
 
     public void OnStartHover()
