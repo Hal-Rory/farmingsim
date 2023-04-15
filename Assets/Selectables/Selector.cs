@@ -10,6 +10,7 @@ public class Selector
     public bool HoverValidated => Hovered != null && !Hovered.Equals(null);
     public bool SelectedValidated => Selected != null && !Selected.Equals(null);    
     [field:SerializeField] public LayerMask Layers { get; private set; }
+    public Action<ISelectable,ISelectable> OnHoveredChanged;
 
     public IInputManager InputManager;
 
@@ -21,10 +22,7 @@ public class Selector
         {
             if (Hovered != selectable)
             {
-                if (HoverValidated)
-                {
-                    Hovered.OnEndHover();
-                }
+                EndPreviousHover(selectable);
                 if (selectable != null)
                 {
                     Hovered = selectable;
@@ -40,11 +38,8 @@ public class Selector
             }
             return;
         }
-        if (HoverValidated)
-        {
-            Hovered.OnEndHover();
-        }
-        Hovered = null;
+        EndPreviousHover();
+        
     }
 
     public void CheckHover()
@@ -54,11 +49,16 @@ public class Selector
             CheckHover(hit);            
         } else
         {
-            if (HoverValidated)
-            {
-                Hovered.OnEndHover();
-                Hovered = null;
-            }
+            EndPreviousHover();
+        }
+    }
+    private void EndPreviousHover(ISelectable newHover = null)
+    {
+        OnHoveredChanged?.Invoke(Hovered, newHover);
+        if (HoverValidated)
+        {
+            Hovered.OnEndHover();
+            Hovered = null;
         }
     }
 
@@ -83,7 +83,7 @@ public class Selector
         {
             Selected = null;
         }
-        if (selectable != null && selectable.Selectable)
+        if (selectable != null && selectable.SelectableBySelector)
         {
             Selected = selectable;
             if (SelectedValidated)
@@ -106,8 +106,7 @@ public class Selector
 
     public void ClearHovered()
     {
-        if (HoverValidated) Hovered.OnEndHover();
-        Hovered = null;
+        EndPreviousHover();
     }
     public void ClearSelection()
     {        

@@ -5,6 +5,8 @@ public interface IInputManager
 {    
     public Camera ActiveCamera { get; }
     public bool GetPointingAt(LayerMask layers, out GameObject hitGO);
+    public void RegisterMenuListener(Action<bool> listener);
+    public void UnregisterMenuListener(Action<bool> listener);
     public void RegisterPrimaryInteractionListener(Action<bool> listener);
     public void UnregisterPrimaryInteractionListener(Action<bool> listener);
     public void RegisterSecondaryInteractionListener(Action<bool> listener);

@@ -6,13 +6,12 @@ using static UnityEditor.Progress;
 
 namespace Items
 {
-    public class UIFarmToolWheel : UIPage
+    public class UIFarmToolWheel : MonoBehaviour
     {
         [SerializeField] private List<InventoryUISlot> Slots = new List<InventoryUISlot>();
 
-        protected override void Start()
+        protected void Start()
         {
-            base.Start();
             Assert.IsNotNull(Slots, $"No slots for {name}");
             if(GameManager.Instance.FarmToolManager.GetCurrentTool() != null) SetCurrentToolActive(GameManager.Instance.FarmToolManager.GetCurrentTool());
             GameManager.Instance.FarmToolManager.RegisterListener(SetCurrentToolActive);
@@ -32,9 +31,8 @@ namespace Items
         {
             return item != null && item.Data is ToolData;
         }
-        protected override void OnDestroy()
+        protected void OnDestroy()
         {
-            base.OnDestroy();
             if (GameManager.Instance != null) GameManager.Instance.OnWeaponsUpdated -= DoUpdated;
             if (GameManager.Instance.FarmToolManager != null) GameManager.Instance.FarmToolManager.UnregisterListener(SetCurrentToolActive);
         }

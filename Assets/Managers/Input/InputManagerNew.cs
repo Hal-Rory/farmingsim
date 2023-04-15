@@ -18,11 +18,10 @@ public class InputManagerNew : MonoBehaviour, IInputManager
     [SerializeField] private string PrimaryActionName = "Player/InteractP";
     private InputAction SecondaryAction;
     [SerializeField] private string SecondaryActionName= "Player/InteractS";
+    private InputAction MenuAction;
+    [SerializeField] private string MenuActionName = "Player/InteractMenu";
     private InputAction PointerActionVector;
-    [SerializeField] private string PointerActionName = "UI/Point";
-
-    private event Action<bool> OnPrimaryInteraction;
-    private event Action<bool> OnSecondaryInteraction;
+    [SerializeField] private string PointerActionName = "UI/Point";    
     private void Start()
     {
         MoveActionVector = Asset.FindAction(MoveActionName);
@@ -33,16 +32,20 @@ public class InputManagerNew : MonoBehaviour, IInputManager
         PrimaryAction.Enable();
         SecondaryAction = Asset.FindAction(SecondaryActionName);
         SecondaryAction.Enable();
+        MenuAction = Asset.FindAction(MenuActionName);
+        MenuAction.Enable();
         PointerActionVector = Asset.FindAction(PointerActionName);
         PointerActionVector.Enable();
 
         PrimaryAction.performed += OnPrimaryAction;
         SecondaryAction.performed += OnSecondaryAction;
+        MenuAction.performed += OnMenuAction;
     }
     private void OnDestroy()
     {
         PrimaryAction.performed -= OnPrimaryAction;
         SecondaryAction.performed -= OnSecondaryAction;
+        MenuAction.performed -= OnMenuAction;
     }
 
     private void OnPrimaryAction(InputAction.CallbackContext obj)
@@ -71,6 +74,19 @@ public class InputManagerNew : MonoBehaviour, IInputManager
         }
     }
 
+    private void OnMenuAction(InputAction.CallbackContext obj)
+    {
+        OnMenuInteraction?.Invoke(obj.performed);
+        if (obj.performed == true)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+
     public Ray GetPointerWorldPosition()
     {
         return Cam.ScreenPointToRay(PointerActionVector.ReadValue<Vector2>());
@@ -87,7 +103,7 @@ public class InputManagerNew : MonoBehaviour, IInputManager
         }
         return false;
     }
-
+    private event Action<bool> OnPrimaryInteraction;    
     public void RegisterPrimaryInteractionListener(Action<bool> listener)
     {
         OnPrimaryInteraction += listener;
@@ -97,6 +113,7 @@ public class InputManagerNew : MonoBehaviour, IInputManager
     {
         OnPrimaryInteraction -= listener;
     }
+    private event Action<bool> OnSecondaryInteraction;
     public void RegisterSecondaryInteractionListener(Action<bool> listener)
     {
         OnSecondaryInteraction += listener;
@@ -106,7 +123,17 @@ public class InputManagerNew : MonoBehaviour, IInputManager
     {
         OnSecondaryInteraction -= listener;
     }
-    
+
+    public Action<bool> OnMenuInteraction;
+    public void RegisterMenuListener(Action<bool> listener)
+    {
+        OnMenuInteraction += listener;
+    }
+
+    public void UnregisterMenuListener(Action<bool> listener)
+    {
+        OnMenuInteraction -= listener;
+    }
     public Vector2 GetPointerDeltaInput()
     {
         return GetLookVector();

@@ -7,8 +7,7 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
     [SerializeField] private Camera Cam;
     [SerializeField] private float RayDist = 100;
     public Camera ActiveCamera => Cam;
-    public Action<bool> OnPrimaryInteraction;
-    public Action<bool> OnSecondaryInteraction;
+        
     private Vector3 PreviousMousePosition;
 
     public Ray GetPointerWorldPosition()
@@ -44,12 +43,20 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
         {
             OnSecondaryInteraction?.Invoke(false);
         }
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            OnMenuInteraction?.Invoke(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.M))
+        {
+            OnMenuInteraction?.Invoke(false);
+        }
     }
     private void LateUpdate()
     {
         PreviousMousePosition = Input.mousePosition;
     }
-
+    public Action<bool> OnPrimaryInteraction;    
     public void RegisterPrimaryInteractionListener(Action<bool> listener)
     {
         OnPrimaryInteraction += listener;
@@ -59,6 +66,7 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
     {
         OnPrimaryInteraction -= listener;
     }
+    public Action<bool> OnSecondaryInteraction;
     public void RegisterSecondaryInteractionListener(Action<bool> listener)
     {
         OnSecondaryInteraction += listener;
@@ -93,5 +101,15 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
     public void SetMouseFocus(bool focused)
     {        
         Cursor.lockState = focused ? CursorLockMode.Locked : CursorLockMode.None;        
+    }
+    public Action<bool> OnMenuInteraction;
+    public void RegisterMenuListener(Action<bool> listener)
+    {
+        OnMenuInteraction += listener;
+    }
+
+    public void UnregisterMenuListener(Action<bool> listener)
+    {
+        OnMenuInteraction -= listener;
     }
 }

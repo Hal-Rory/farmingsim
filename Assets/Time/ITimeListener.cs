@@ -7,5 +7,7 @@ namespace GameTime
         /// </summary>
         /// <param name="timestamp"></param>
         public void ClockUpdate(TimeStruct timestamp);
+        public void Register();
+        public void Unregister();
     }
 }

@@ -9,6 +9,10 @@ public class ToggleCard : Card
     public void Set(string ID, string label, Sprite icon, UnityAction<bool> callback)
     {
         Set(ID, label, icon);
+        SetAction(callback);
+    }
+    public void SetAction(UnityAction<bool> callback)
+    {
         Selectable.onValueChanged.RemoveAllListeners();
         Selectable.onValueChanged.AddListener(callback);
     }

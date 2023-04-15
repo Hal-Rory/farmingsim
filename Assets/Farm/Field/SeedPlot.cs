@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 
 namespace Farm.Field
 {
-    public class Field : MonoBehaviour, IField, ITimeListener, ISelectable
+    public class SeedPlot : PropItem, IField, ITimeListener, ISelectable
     {
         [Tooltip("In hours, how long does it take for the till state to decay")]
         [SerializeField] private int TillDecayMax = 1;
@@ -18,7 +18,7 @@ namespace Farm.Field
         [SerializeField] private ParticleSystem Particles;
         [SerializeField] private MeshFieldBase FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
         public long TimeNeeded => Current.TimeNeeded;
-        private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;        
+        private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
         public float GrowthLevel
         {
             get
@@ -32,20 +32,24 @@ namespace Farm.Field
 
         private void Awake()
         {
-            Assert.IsNotNull(FieldRenderer, "Missing Field Renderer");
+            ValidateProp();
             TillDecay = TillDecayMax;
         }
         private void OnEnable()
         {
-            GameManager.Instance.TimeManager.RegisterListener(this);
+            Register();
+        }
+        private void OnDisable()
+        {
+            Unregister();
         }
         private void Start()
         {
             SetState(IField.FieldState.untilled);
         }
-        private void OnDisable()
+        protected override void ValidateProp()
         {
-            GameManager.Instance.TimeManager.UnregisterListener(this);
+            Assert.IsNotNull(FieldRenderer, "Missing Field Renderer");
         }
         protected void SetState(IField.FieldState state)
         {
@@ -61,44 +65,36 @@ namespace Farm.Field
             FieldRenderer.SetCropState(render);
         }
         #region ISelectable
-        public GameObject SelectableObject { get => gameObject; }
-        [field: SerializeField] public bool Selectable { get; private set; } = true;
-        public SELECTABLE_TYPE Type => SELECTABLE_TYPE.prop;
-        public static Field Hovered;
-        public static event Action<Field> OnFieldSelected;
-        public static event Action<Field> OnHoveredChanged;
-        public void OnDeselect()
+        public override void OnDeselect()
         {
-            print("deselected");
         }
 
-        public void OnEndHover()
+        public override void OnEndHover()
         {
-            if(Hovered == this)
-                Hovered = null;
+            
         }
 
-        public void OnSelect()
+        public override void OnSelect()
         {
-            OnFieldSelected?.Invoke(this);
+            Interact();
         }
 
-        public void OnStartHover()
+        public override void OnStartHover()
         {
-            OnHoveredChanged?.Invoke(this);            
+            
         }
 
-        public void WhileHovering()
+        public override void WhileHovering()
         {
-            Hovered = this;
+            
         }
 
-        public void WhileSelected()
+        public override void WhileSelected()
         {
         }
         #endregion
-        #region ITimeListener
-        public void ClockUpdate(TimeStruct timestamp)
+        #region ITimeListener        
+        public override void ClockUpdate(TimeStruct timestamp)
         {
             if (WaterDecay > 0)
             {
@@ -143,7 +139,7 @@ namespace Farm.Field
         {
             return Current != null;
         }
-        public void Interact()
+        public override void Interact()
         {
             switch (FarmManager.GetCurrentToolType())
             {
@@ -200,7 +196,7 @@ namespace Farm.Field
             if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop())
                 return;            
             Current = new Crop(crop);
-            Current.Plant(crop, GameManager.Instance.TimeManager.CurrentTime);
+            Current.Plant(crop, ITimeManager.Instance.CurrentTime);
             SetCropRenderer(Current.UpdateCropSprite(0));
             if (State == IField.FieldState.watered_tilled) SetState(IField.FieldState.watered_crop);
             if (State == IField.FieldState.tilled) SetState(IField.FieldState.tilled_crop);

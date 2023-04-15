@@ -14,7 +14,7 @@ public class TimeUI : UIPage
         Pause.Selectable.onValueChanged.AddListener(TryPauseTime);
         Play.Selectable.onValueChanged.AddListener(TryStartTime);
         Fast.Selectable.onValueChanged.AddListener(TrySpeedupTime);
-        DoTimeChanged(GameManager.Instance.TimeManager.State);
+        DoTimeChanged(ITimeManager.Instance.State);
         GameManager.Instance.OnTimeUpdated += DoTimeChanged;        
     }
     protected override void OnDestroy()
@@ -34,7 +34,7 @@ public class TimeUI : UIPage
 
     private void Update()
     {
-        TimeLabel.text = GameManager.Instance.TimeManager.DisplayTime();
+        TimeLabel.text = ITimeManager.Instance.DisplayTime();
     }
 
     private void TryPauseTime(bool pause)

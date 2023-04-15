@@ -1,4 +1,3 @@
-using Farm.Field;
 using Items;
 using UnityEngine;
 
@@ -37,17 +36,17 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     public void Register()
     {
         FarmManager.RegisterListener(SetToolRender);
+        GameManager.Instance.InputManager.RegisterPrimaryInteractionListener(DoPrimaryInteraction);
         GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(DoSwapTool);
-        Field.OnFieldSelected += DoFieldSelected;
-        Field.OnHoveredChanged += DoHoveredChanged;
+        GameManager.Instance.Selection.OnHoveredChanged += DoHoveredChanged;
     }
 
     public void Unregister()
     {
         FarmManager.UnregisterListener(SetToolRender);
+        GameManager.Instance.InputManager.UnregisterPrimaryInteractionListener(DoPrimaryInteraction);
         GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(DoSwapTool);
-        Field.OnFieldSelected -= DoFieldSelected;
-        Field.OnHoveredChanged -= DoHoveredChanged;
+        GameManager.Instance.Selection.OnHoveredChanged -= DoHoveredChanged;
     }
 
     private void PlayAnimation(bool interact)
@@ -84,20 +83,34 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
 
     public void InteractWithHovered()
     {
-        if (Field.Hovered != null)
+        if (GameManager.Instance.Selection.HoverValidated)
         {
-            Field.Hovered.Interact();
+            GameManager.Instance.Selection.Hovered.OnSelect();
         }
     }
-    private void DoFieldSelected(Field obj)
+    private void DoPrimaryInteraction(bool interact)
     {
-        PlayAnimation(true);
+        if (interact)
+        {
+            PlayAnimation(true);
+        }
     }
-    private void DoHoveredChanged(Field obj)
+    private void DoHoveredChanged(ISelectable prev, ISelectable next)
     {
-        if(obj != Field.Hovered)
+        if(next == null || prev != next)
         {
             Animate(false);
+        }
+        if(next != null)
+        {
+            transform.position = next.SelectableObject.transform.TransformPoint(next.HoverPoint); //todo: make this an axis, not a point?
+            CanAnimate = true;
+        }
+        else if (CanAnimate)
+        {
+            Animate(false);
+            CanAnimate = false;
+            transform.localPosition = StartingLocalPosition;
         }
     }
     private void Start()
@@ -113,19 +126,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     {
         Unregister();
     }
-    private void Update()
-    {
-        if(Field.Hovered != null)
-        {
-            transform.position = Field.Hovered.transform.position + Vector3.up;
-            CanAnimate = true;
-        } else if (CanAnimate)
-        {
-            Animate(false);
-            CanAnimate = false;
-            transform.localPosition = StartingLocalPosition;
-        }        
-    }
+    
     private void SetRendererAndMesh(MeshFarmToolCollection farmTool)
     {
         //debug due to odd models

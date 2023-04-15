@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
     [field: SerializeField] public PlayerInventoryManager PlayerInventoryManager { get; private set; }
     [field: SerializeField] public UIManager UIManager { get; private set; }
+    [field: SerializeField] public CraftingManager CraftingManager { get; private set; }
 
     void Awake()
     {
@@ -36,6 +37,7 @@ public class GameManager : MonoBehaviour
                 AllCrops.TryAdd(crop.ID, crop);
             }
             PlayerInventoryManager = new PlayerInventoryManager();
+            CraftingManager = new CraftingManager();
             GameInventory.OnUpdated += DoItemsUpdated;
             WeaponInventory.OnUpdated += DoWeaponsUpdated;
             MarketManager = new MarketManager();
@@ -50,7 +52,7 @@ public class GameManager : MonoBehaviour
             UIManager.SetBaseFocus();
             SetMarketInventory();
             LightListener.LightManager = LightManager;
-            TimeManager.RegisterListener(LightListener);
+            LightListener.Register();
         }        
 
         GetOrSetFirstCrop();
@@ -59,7 +61,7 @@ public class GameManager : MonoBehaviour
     private void OnDestroy()
     {
         if(Instance == this) InputManager.UnregisterPrimaryInteractionListener(Selection.Interaction);
-        if(Instance == this) TimeManager.UnregisterListener(LightListener);
+        LightListener.Unregister();
     }    
     
     private void Update()
@@ -112,6 +114,10 @@ public class GameManager : MonoBehaviour
     public bool SetItem(string key)
     {
         return GameInventory.Set(key, out Item _);
+    }
+    public bool ContainsItem(ItemData item, int amount)
+    {
+        return GameInventory.Contains(item, amount);
     }
     public void SetMarketInventory()
     {
@@ -191,7 +197,7 @@ public class GameManager : MonoBehaviour
     #endregion
     #region Time
     public event Action<TIME_STATE> OnTimeUpdated;
-    private class LightTimeListener : ITimeListener
+    internal class LightTimeListener : ITimeListener
     {
         public LightManager3D LightManager;
         public void ClockUpdate(TimeStruct timestamp)
@@ -200,11 +206,19 @@ public class GameManager : MonoBehaviour
             float deltaPerHour = rotation / 24;
             LightManager.SetLightState(deltaPerHour);
         }
+        public void Register()
+        {
+            Instance.TimeManager.RegisterListener(this);
+        }
+        public void Unregister()
+        {
+            Instance.TimeManager.UnregisterListener(this);
+        }
     }
     [SerializeField] private float FastFowardDelta = .5f;
     [SerializeField] private float TimeDelta = 1f;
 
-    [field: SerializeField] public ITimeManager TimeManager { get; private set; }
+    [field: SerializeField] private ITimeManager TimeManager;
     [SerializeField] private LightManager3D LightManager;
     [SerializeField] private LightTimeListener LightListener;
     private void StartTime()

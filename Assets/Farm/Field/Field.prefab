@@ -260,11 +260,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39e09097d24700b4ab29feaf496e18dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ToolNeeded: 4
+  <SelectableBySelector>k__BackingField: 0
+  <HoverPoint>k__BackingField: {x: 0, y: 1, z: 0}
   TillDecayMax: 15
   WaterDecayDelta: 1
   Particles: {fileID: 8236378604180707026}
   FieldRenderer: {fileID: 8567597666413887547}
-  <Selectable>k__BackingField: 1
 --- !u!114 &7268368473005427191
 MonoBehaviour:
   m_ObjectHideFlags: 0

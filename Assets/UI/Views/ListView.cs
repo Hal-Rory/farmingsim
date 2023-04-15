@@ -8,23 +8,33 @@ public class ListView : MonoBehaviour
     [SerializeField] private ScrollRect Scroll;
     public int Count => Cards.Count;
 
-    public virtual T AddCard<T>(string id, GameObject prefab)
+    public virtual T AddCard<T>(string id, GameObject go, bool create = true)
     {
         if(Cards.TryGetValue(id, out GameObject cardObject))
         {
             return cardObject.GetComponent<T>();
-        } else { 
-            GameObject new_obj = Instantiate(prefab, Scroll.content);
+        } else {
+            GameObject new_obj;
+            if (create)
+            {
+                new_obj = Instantiate(go, Scroll.content);
+            } else
+            {
+                new_obj = go;
+            }
             Cards.Add(id, new_obj);
             LayoutRebuilder.ForceRebuildLayoutImmediate(Scroll.content);
             return new_obj.GetComponent<T>();
         }
     }
-    public virtual void RemoveCard(string id)
+    public virtual void RemoveCard(string id, bool destroy = true)
     {
         if (Cards.ContainsKey(id))
         {
-            Destroy(Cards[id].gameObject);
+            if (destroy)
+            {
+                Destroy(Cards[id].gameObject);
+            }
             Cards.Remove(id);
             LayoutRebuilder.ForceRebuildLayoutImmediate(Scroll.content);
         }

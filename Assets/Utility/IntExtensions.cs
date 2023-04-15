@@ -12,4 +12,15 @@ public static class IntExtensions
     {
         return Mathf.FloorToInt(Mathf.Repeat(i, length));
     }
+    /// <summary>
+    /// Checks if between two values, includes equal to
+    /// </summary>
+    /// <param name="thisValue"></param>
+    /// <param name="value1"></param>
+    /// <param name="value2"></param>
+    /// <returns></returns>
+    public static bool IsBetweenRange(this int thisValue, int value1, int value2)
+    {
+        return thisValue >= Mathf.Min(value1, value2) && thisValue <= Mathf.Max(value1, value2);
+    }
 }

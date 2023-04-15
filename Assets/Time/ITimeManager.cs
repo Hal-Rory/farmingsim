@@ -3,6 +3,7 @@ using System.Collections;
 
 public interface ITimeManager
 {
+    public static ITimeManager Instance;
     public enum TIME_STATE { playing, paused, fast };
     public TIME_STATE State { get; }
     public TimeStruct CurrentTime { get; }

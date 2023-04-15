@@ -6,10 +6,14 @@ public class MarketStall : MonoBehaviour, ISelectable
     public string MarketName;
     public SELECTABLE_TYPE Type => SELECTABLE_TYPE.prop;
 
-    [field: SerializeField] public bool Selectable { get; private set; } = true;
-
+    [field: SerializeField] public bool SelectableBySelector { get; private set; } = true;
 
     public GameObject SelectableObject => gameObject;
+    [field: SerializeField] public Vector3 HoverPoint { get; private set; }
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawSphere(transform.TransformPoint(HoverPoint), .1f);
+    }
 
     public void OnDeselect()
     {

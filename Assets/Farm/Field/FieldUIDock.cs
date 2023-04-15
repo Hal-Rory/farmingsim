@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FieldUIDock : MonoBehaviour, IUIDock
 {
-    [SerializeField] private Field Target;
+    [SerializeField] private SeedPlot Target;
     public virtual void Docked(DockableUI dockable)
     {
         if(dockable.TryGetComponent(out IFilterable filter))

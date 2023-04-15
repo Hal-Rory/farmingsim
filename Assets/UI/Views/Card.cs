@@ -34,7 +34,7 @@ public class Card : MonoBehaviour, IFilterable
         Label.text = label;
         SetIcon(sprite);
     }
-    public virtual void SetEmpty(string label)
+    public virtual void SetEmpty(string label = "")
     {
         ID = string.Empty;
         SetIcon(null);

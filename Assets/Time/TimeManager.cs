@@ -6,7 +6,6 @@ namespace GameTime
 
     public class TimeManager : ITimeManager
     {
-        
         public TimeStruct _currentTime;
         public bool CanTick { get; private set; }
         private HashSet<ITimeListener> TimeListeners = new HashSet<ITimeListener>();
@@ -18,13 +17,11 @@ namespace GameTime
         }
 
         public ITimeManager.TIME_STATE State { get; private set; }
-
-        public TimeManager(float delta,int time, int date, int month, int year)
+        public TimeManager()
         {
-            TimeDelta = delta;
-            _currentTime = new TimeStruct(time, date, month, year);
+            ITimeManager.Instance = this;
         }
-        public TimeManager(float delta, TimeStruct other)
+        public TimeManager(float delta, TimeStruct other): this()
         {
             TimeDelta = delta;
             _currentTime = other;

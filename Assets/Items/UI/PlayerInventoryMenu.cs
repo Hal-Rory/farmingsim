@@ -1,6 +1,7 @@
 using Items;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class PlayerInventoryMenu : MonoBehaviour
 {
@@ -12,6 +13,21 @@ public class PlayerInventoryMenu : MonoBehaviour
         PlayerInventory.SetCardSetup(SetCard);
         PlayerInventory.Validation = ValidateItem;
         GameManager.Instance.PlayerInventoryManager.RegisterPlayerInventory(ref PlayerInventory);
+    }
+    private void OnEnable()
+    {
+        Item item = GameManager.Instance.GetItem();
+        if (item != null && ItemHeader.ID != item.Data.ID)
+        {
+            if (item.Amount > 0)
+            {
+                ItemHeader.SetPanel(item.Data.ID, item.Data.Name, item.Data.Description, item.Data.Display);
+            }
+        }
+    }
+    private void OnDisable()
+    {
+        ItemHeader.SetEmpty();
     }
     private bool ValidateItem(Item item)
     {
@@ -37,8 +53,15 @@ public class PlayerInventoryMenu : MonoBehaviour
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(()=>
         {
-            ItemHeader.SetPanel(item.Data.ID, item.Data.Name, item.Data.Description, item.Data.Display);
-            GameManager.Instance.SetItem(item.Data.ID);
+            if (ItemHeader.ID != item.Data.ID)
+            {
+                ItemHeader.SetPanel(item.Data.ID, item.Data.Name, item.Data.Description, item.Data.Display);
+                GameManager.Instance.SetItem(item.Data.ID);
+            } else
+            {
+                GameManager.Instance.SetItem(null);
+                ItemHeader.SetEmpty();
+            }
         });
         button.interactable = item.Amount > 0;        
     }

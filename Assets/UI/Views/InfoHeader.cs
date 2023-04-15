@@ -6,7 +6,7 @@ public class InfoHeader : MonoBehaviour, IFilterable
     [SerializeField] protected Text Info;
     [SerializeField] protected Text Header;
 
-    public string ID {get; private set;}
+    [field:SerializeField] public string ID {get; private set;}
 
     public void SetHeader(string id, string header)
     {

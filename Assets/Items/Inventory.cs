@@ -48,9 +48,12 @@ public class Inventory
     {
         item = this[key];
         if (item != null) {
-            CurrentIndex = Items.IndexOf(item);
-            OnCurrentSet?.Invoke(item);           
+            CurrentIndex = Items.IndexOf(item);            
+        } else
+        {
+            CurrentIndex= -1;
         }
+        OnCurrentSet?.Invoke(CurrentIndex != -1 ? item : null);
         return CurrentIndex != -1;
     }
     public void Set(int direction)
@@ -128,7 +131,7 @@ public class Inventory
     /// <param name="selection"></param>
     /// <param name="amount">Will take -abs of this value</param>
     /// <returns></returns>
-    public bool RemoveItem(ObjData selection, int amount)
+    public bool RemoveItem(ItemData selection, int amount)
     {
         Item item = this[selection.ID];
         if (item == null) return false;
@@ -180,12 +183,12 @@ public class Inventory
         return true;
     }
 
-    public bool Contains(ObjData selection)
+    public bool Contains(ItemData selection)
     {
         return this[selection.ID] != null;
     }
 
-    public bool Contains(ObjData selection, int amount)
+    public bool Contains(ItemData selection, int amount)
     {
         Item item = this[selection.ID];
         return item != null && item.Amount >= amount;
