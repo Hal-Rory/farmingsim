@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public enum SELECTABLE_TYPE { none, item, tool, prop, npc, weapon };
+public enum SELECTABLE_TYPE { none, item, tool, prop, npc, weapon, currency };
 [Serializable]
 public class Selector
 {
@@ -11,42 +11,37 @@ public class Selector
     public bool SelectedValidated => Selected != null && !Selected.Equals(null);    
     [field:SerializeField] public LayerMask Layers { get; private set; }
     public Action<ISelectable,ISelectable> OnHoveredChanged;
-
     public IInputManager InputManager;
-
-    public void CheckHover(GameObject go)
-    {
-        if(go == null) return;
-        ISelectable selectable;
-        if (go.TryGetComponent(out selectable))
-        {
-            if (Hovered != selectable)
-            {
-                EndPreviousHover(selectable);
-                if (selectable != null)
-                {
-                    Hovered = selectable;
-                    if (HoverValidated && Hovered.SelectableObject.activeSelf)
-                    {
-                        Hovered.OnStartHover();
-                    }
-                    else
-                    {
-                        Hovered = null;
-                    }
-                }
-            }
-            return;
-        }
-        EndPreviousHover();
-        
-    }
+    public float HoverDistance { get; private set; }
 
     public void CheckHover()
     {
-        if (InputManager.GetPointingAt(Layers, out GameObject hit))
+        if (InputManager.GetPointingAt(Layers, out GameObject hit, out float dist))
         {
-            CheckHover(hit);            
+            if (hit == null) return;
+            ISelectable selectable;
+            if (hit.TryGetComponent(out selectable))
+            {
+                if (Hovered != selectable)
+                {
+                    HoverDistance = dist;
+                    EndPreviousHover(selectable);
+                    if (selectable != null)
+                    {
+                        Hovered = selectable;
+                        if (HoverValidated && Hovered.SelectableObject.activeSelf)
+                        {
+                            Hovered.OnStartHover();
+                        }
+                        else
+                        {
+                            Hovered = null;
+                        }
+                    }
+                }
+                return;
+            }
+            EndPreviousHover();
         } else
         {
             EndPreviousHover();

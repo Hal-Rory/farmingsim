@@ -1,10 +1,10 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class MainMenu : UIPage
 {
     private bool IsOpen;
     [SerializeField] private ToggleCollection Tabs;
+    [SerializeField] private GameObject[] Windows;
     protected override void Start()
     {
         base.Start();
@@ -39,6 +39,20 @@ public class MainMenu : UIPage
             {
                 IsOpen= true;
                 OpenFocus();
+            }
+        }
+    }
+    public void OpenWindow(GameObject window)
+    {
+        foreach (var item in Windows)
+        {
+            if (item != window)
+            {
+                item.SetActive(false);
+            }
+            else
+            {
+                item.SetActive(true);
             }
         }
     }

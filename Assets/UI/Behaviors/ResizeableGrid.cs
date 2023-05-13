@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,20 +23,21 @@ public class ResizeableGrid : MonoBehaviour
     public void ResizeChildren()
     {
         if (Grid.constraint != GridLayoutGroup.Constraint.Flexible) return;
-        print((Grid.transform as RectTransform).rect);
         Vector2 resize = Vector2.zero;
-        Vector2 gridRect = new Vector2((Grid.transform as RectTransform).rect.width - Grid.padding.left - Grid.padding.right, (Grid.transform as RectTransform).rect.height - Grid.padding.top - -Grid.padding.bottom);
+        Vector2 gridRect = new Vector2((Grid.transform as RectTransform).rect.width - Grid.padding.left - Grid.padding.right, (Grid.transform as RectTransform).rect.height - Grid.padding.top -Grid.padding.bottom);
+        float rowCount = Mathf.Ceil((transform.childCount * 1.0f) / (Mathf.Max(MaxColumnCount, 1)));
+        float columnCount = Mathf.Ceil((transform.childCount * 1.0f) / (Mathf.Max(MaxRowCount, 1)));
+        gridRect.x -= Grid.spacing.x * (rowCount + 1);
+        gridRect.y -= Grid.spacing.y * (columnCount+ 1);
         if (Preference == SizePreference.Column)
         {
             resize.x = gridRect.x / MaxColumnCount;
             if (ChildSizing == Sizing.Fit)
             {
-                float rowCount = Mathf.Ceil((transform.childCount * 1.0f) / (MaxColumnCount * 1.0f));
                 resize.y = gridRect.y / rowCount;
             }
         } else
         {
-            float columnCount = Mathf.Ceil((transform.childCount * 1.0f) / (MaxRowCount * 1.0f));
             resize.x = gridRect.x / columnCount;
             if (ChildSizing == Sizing.Fit)
             {

@@ -1,10 +1,8 @@
-using Items;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CraftingManager {
-    public static int RecipeIngredientMax => 12;
+    public static int RecipeIngredientMax => 6;
     private List<CraftingRecipe> AllRecipes = new List<CraftingRecipe>();
 	public CraftingManager()
 	{

@@ -1,6 +1,3 @@
-using GameTime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -39,11 +36,11 @@ public class TreePlot : PropItem, IDamageable
         }
     }
     #region TimeListener
-    public override void ClockUpdate(TimeStruct timestamp)
+    public override void ClockUpdate(int tick)
     {
         if (!IsDone)
         {
-            GrowthTick++;
+            GrowthTick+= tick;
             IsDone = GrowthTick >= GrowthTickMax;
         }
     }

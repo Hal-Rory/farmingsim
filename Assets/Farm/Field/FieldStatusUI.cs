@@ -1,5 +1,4 @@
 using Farm.Field;
-using UnityEngine;
 using UnityEngine.UI;
 
 public class FieldStatusUI : UIPage

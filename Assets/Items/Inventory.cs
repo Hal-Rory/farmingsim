@@ -75,11 +75,12 @@ public class Inventory
     {
         return Items;
     }
-    public IEnumerable<Item> GetAll(List<SELECTABLE_TYPE> types)
+    public IEnumerable<Item> GetAll(params SELECTABLE_TYPE[] types)
     {        
+        HashSet<SELECTABLE_TYPE> typeList = new HashSet<SELECTABLE_TYPE>(types);
         foreach (var item in Items)
         {
-            if (types.Count == 0 || types.Contains(item.Data.DataType))
+            if (types.Length == 0 || typeList.Contains(item.Data.SelectableType))
                 yield return item;
         }
     }
@@ -131,11 +132,12 @@ public class Inventory
     /// <param name="selection"></param>
     /// <param name="amount">Will take -abs of this value</param>
     /// <returns></returns>
-    public bool RemoveItem(ItemData selection, int amount)
+    public bool RemoveItem(ItemData selection, int amount = 0)
     {
         Item item = this[selection.ID];
         if (item == null) return false;
         int adjusted = Math.Abs(amount);
+        if(amount == 0) adjusted = item.Amount;
         item.Amount -= adjusted;
         if (AutoCleanup && item.Amount <= 0)
         {

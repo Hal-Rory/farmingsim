@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ac6143a42bbe2d45b02a6bed8193418, type: 3}
+  m_Name: SScythe
+  m_EditorClassIdentifier: 
+  Name: Scythe
+  Description: 
+  Display: {fileID: -992795420, guid: bbf098d7a4348e34db569bc4137bbe0a, type: 3}
+  <ID>k__BackingField: sc1
+  Rank: 1
+  Sellable: 0
+  <SelectableType>k__BackingField: 2
+  PurchasePrice: 0
+  SellPrice: 0
+  Range: 10
+  Attack: 1.5
+  MaxCharges: 10
+  RechargeSeconds: 4
+  CooldownSeconds: 0.75
+  ToolType: 2

@@ -2,83 +2,55 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
-public class InventoryList : MonoBehaviour
+[Serializable]
+public class InventoryList<T>
+    where T : Card
 {
-    [SerializeField] private ListView Display;
-    [SerializeField] private InfoHeader Header;
-    [SerializeField] private GameObject CardPrefab;
-    private Dictionary<Item, Card> Cards = new Dictionary<Item, Card>();
-    private Action<Card, Item> OnCardSetup;
-    public Func<Item, bool> Validation;
+    [SerializeField] private ListViewScroll Display;
+    private Dictionary<string, T> Cards = new Dictionary<string, T>();
     public bool DisplayEmpty;
 
-    private void OnDestroy()
+    public void SetActive(bool active)
     {
-        OnCardSetup = null;
+        Display.gameObject.SetActive(active);
     }
-    public void SetCardSetup(Action<Card, Item> action)
+    public bool UpdateCard(Item item, Action<Item, T> Setup)
     {
-        OnCardSetup = action;
+        if (Cards.TryGetValue(item.Data.ID, out T card))
+        {
+            if (item.Amount <= 0 && !DisplayEmpty)
+            {
+                RemoveCard(item.Data.ID);
+                return true;
+            }
+            Setup?.Invoke(item, card);
+            return true;
+        }
+        return false;
     }
-    public void SetHeader(string label, string info)
+    public void FindMissing(IEnumerable<string> allIDs)
     {
-        Header.SetHeader("inventory", label);
-        Header.SetInfo(info);
-    }
-    public void UpdateItem(Item item)
-    {
-        SetOrAddCard(item);
+        string[] cards = Cards.Keys.ToArray();
+        foreach (var id in cards)
+        {
+            if (!allIDs.Contains(id))
+            {
+                RemoveCard(id);
+            }
+        }
     }
 
-    public void UpdateInventory(IEnumerable<Item> items)
+    public void AddCard(Item item, GameObject prefab, Action<Item, T> Setup)
     {
-        HashSet<Item> remove = new HashSet<Item>(Cards.Keys);
-        remove.RemoveWhere(x => !items.Contains(x));
-        foreach (Item item in remove)
-        {
-            RemoveCard(item);
-        }
-        foreach (Item item in items)
-        {
-            SetOrAddCard(item);
-        }
-    }
-    public void AddCard(Item item)
-    {
-        if (Validation?.Invoke(item) == false) return;
-        Card card = Display.AddCard<Card>(item.Data.ID, CardPrefab);
+        T card = Display.AddCard<T>(item.Data.ID, prefab);
         card.Set(item.Data.ID);
-        SetCard(item, card);        
-        Cards.Add(item, card);
-    }
-    public void RemoveCard(Item item)
-    {
-        Display.RemoveCard(item.Data.ID);
-        Cards.Remove(item);
-    }
-    public void SetOrAddCard(Item item)
-    {
-        if (Cards.TryGetValue(item, out Card card))
-        {
-            SetCard(item, card);
-        }
-        else
-        {
-            AddCard(item);
-        }
+        Cards.Add(item.Data.ID, card);
+        Setup?.Invoke(item, card);
     }
 
-    private void SetCard(Item item, Card card)
+    public void RemoveCard(string id)
     {
-        if(item.Amount <= 0 && !DisplayEmpty)
-        {
-            RemoveCard(item);
-            OnCardSetup?.Invoke(null, item);
-            return;
-        }
-        card.SetLabel($"{item.Data.Name}({item.Amount})");
-        card.SetIcon(item.Data.Display);        
-        OnCardSetup?.Invoke(card, item);
+        Display.RemoveCard(id);
+        Cards.Remove(id);
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using static ITimeManager;
 using static UIManager;
-using static UnityEditor.Progress;
 
 [DefaultExecutionOrder(-1)]
 public class GameManager : MonoBehaviour
@@ -15,7 +14,6 @@ public class GameManager : MonoBehaviour
     [field: SerializeField] public IInputManager InputManager { get; private set; }
     [field: SerializeField] public MarketManager MarketManager { get; private set; }
     [field: SerializeField] public Selector Selection { get; private set; } = new Selector();
-    [field: SerializeField] public PlayerInventoryManager PlayerInventoryManager { get; private set; }
     [field: SerializeField] public UIManager UIManager { get; private set; }
     [field: SerializeField] public CraftingManager CraftingManager { get; private set; }
 
@@ -34,12 +32,16 @@ public class GameManager : MonoBehaviour
             {
                 Debug.Log("TESTING HERE");
                 AddItem(crop, 2);
-                AllCrops.TryAdd(crop.ID, crop);
+                AllSeedsTypes.TryAdd(crop.ID, crop);
             }
-            PlayerInventoryManager = new PlayerInventoryManager();
             CraftingManager = new CraftingManager();
+            ToolBelt.Set();
+            foreach (var item in ToolBelt.GetAll())
+            {
+                GameInventory.AddItem(item.Data, item.Amount);
+            }
             GameInventory.OnUpdated += DoItemsUpdated;
-            WeaponInventory.OnUpdated += DoWeaponsUpdated;
+            GameInventory.OnCurrentSet += DoCurrentItemUpdated;
             MarketManager = new MarketManager();
             TimeManager = new TimeManager(1, TimeStruct.Default);
             LightListener = new LightTimeListener();
@@ -54,8 +56,6 @@ public class GameManager : MonoBehaviour
             LightListener.LightManager = LightManager;
             LightListener.Register();
         }        
-
-        GetOrSetFirstCrop();
     }
    
     private void OnDestroy()
@@ -89,14 +89,42 @@ public class GameManager : MonoBehaviour
 
     #region Items
     [SerializeField] private List<Item> MarketItems = new List<Item>();
-    public Dictionary<string, SeedData> AllCrops { get; private set; } = new Dictionary<string, SeedData>();
-    private string SelectedCropToPlant;
+    private Dictionary<string, SeedData> AllSeedsTypes = new Dictionary<string, SeedData>();
     public event Action<SeedData> OnCropSet;
-    public event Action<Item> OnItemsUpdated;
-    public event Action<Item> OnWeaponsUpdated;
+    public event Action<Item> OnItemUpdated;
+    public event Action<Item> OnCurrentItemUpdated;
 
     [SerializeField] private Inventory GameInventory = new Inventory();
-    [SerializeField] private Inventory WeaponInventory = new Inventory();
+    
+    public event Action<Item> OnToolUpdated;
+    [SerializeField] private ItemBelt ToolBelt = new ItemBelt();
+    public Item GetToolbelt()
+    {
+        return ToolBelt.GetCurrent();
+    }
+    public Item GetNextToolbelt()
+    {
+        return ToolBelt.NextItem();
+    }
+    public IEnumerable<Item> GetAllTools()
+    {
+        return ToolBelt.GetAll();
+    }
+    public string GetTool(TOOL_TYPE type)
+    {
+        foreach (var item in ToolBelt.GetAll())
+        {
+            if(((ToolData)item.Data).ToolType == type)
+            {
+                return item.Data.ID;
+            }
+        }
+        return string.Empty;
+    }
+    public void SetToolbelt(string id) {
+        OnToolUpdated?.Invoke(ToolBelt.SetCurrentItem(id));
+    }
+
     public Item GetItem()
     {
         return GameInventory.Get();
@@ -125,74 +153,49 @@ public class GameManager : MonoBehaviour
     }
     private void DoItemsUpdated(Item item)
     {
-        OnItemsUpdated?.Invoke(item);
+        OnItemUpdated?.Invoke(item);
     }
+    private void DoCurrentItemUpdated(Item item)
+    {
+        OnCurrentItemUpdated?.Invoke(item);
+    }
+
     public void AddItem(ItemData item, int amount)
     {
-        if (item is WeaponData)
+        if (item.SelectableType == SELECTABLE_TYPE.currency)
         {
-            AddWeapon(item as WeaponData, amount);
+            ModifyWallet(amount);
+            return;
         }
-        else
+        if (item.SelectableType == SELECTABLE_TYPE.tool)
         {
-            GameInventory.AddItem(item, amount);            
+            HashSet<Item> items = new HashSet<Item>(ToolBelt.GetAll());
+            foreach (var tool in items)
+            {
+                if(((ToolData)tool.Data).ToolType == ((ToolData)item).ToolType)
+                {
+                    ToolBelt.Swap(tool.Data, new Item(item, amount));
+                    break;
+                }
+            }
         }
+        GameInventory.AddItem(item, amount);        
     }
     public bool RemoveItem(ItemData item, int amount)
     {
-        if (item is WeaponData)
+        if (GameInventory.RemoveItem(item, amount))
         {
-            return RemoveWeapon(item as WeaponData, amount);
+            if (item.SelectableType == SELECTABLE_TYPE.tool)
+            {
+                ToolBelt.Remove(item.ID);
+            }
+            return true;
         }
-        else
-        {
-            return GameInventory.RemoveItem(item, amount);
-        }
+        return false;
     }
-    public Item GetWeapon()
+    public IEnumerable<Item> GetInventory(params SELECTABLE_TYPE[] types)
     {
-        return WeaponInventory.Get();
-    }
-    private void DoWeaponsUpdated(Item item)
-    {
-        OnWeaponsUpdated?.Invoke(item);
-    }
-    public void AddWeapon(WeaponData item, int amount)
-    {
-        WeaponInventory.AddItem(item, amount);
-    }
-    public bool RemoveWeapon(WeaponData item, int amount)
-    {
-        return WeaponInventory.RemoveItem(item, amount);
-    }
-    public bool GetWeapon(string key, out Item item)
-    {
-        item = WeaponInventory[key];
-        return item != null;
-    }
-    public bool GetWeapon(int key, out Item item)
-    {
-        item = WeaponInventory[key];
-        return item != null;
-    }
-    public bool SetWeapon(string key)
-    {
-        return WeaponInventory.Set(key, out Item _);
-    }
-    public void SelectFromInventory(string ID)
-    {
-        if (GameInventory.Set(ID, out Item item) && item.Data is SeedData)
-        {
-            SelectedCropToPlant = item.Data.ID;
-        }
-    }
-    public IEnumerable<Item> GetInventory()
-    {
-        return GameInventory.GetAll();
-    }
-    public IEnumerable<Item> GetWeapons()
-    {
-        return WeaponInventory.GetAll();
+        return GameInventory.GetAll(types);
     }
     #endregion
     #region Time
@@ -200,11 +203,14 @@ public class GameManager : MonoBehaviour
     internal class LightTimeListener : ITimeListener
     {
         public LightManager3D LightManager;
-        public void ClockUpdate(TimeStruct timestamp)
+        public void ClockUpdate(int tick)
         {
-            float rotation = 360;
-            float deltaPerHour = rotation / 24;
-            LightManager.SetLightState(deltaPerHour);
+            if (ITimeManager.Instance.TimeDelta > 0)
+            {
+                float rotation = 360;
+                float deltaPerHour = (rotation / 24) / ITimeManager.Instance.TimeDelta;
+                LightManager.SetLightState(deltaPerHour);
+            }
         }
         public void Register()
         {
@@ -267,39 +273,13 @@ public class GameManager : MonoBehaviour
     }
     #endregion
     #region Crops
-    public SeedData GetOrSetFirstCrop(int modify = 0)
-    {
-        List<string> crops = new List<string>(AllCrops.Keys);
-        if (!string.IsNullOrEmpty(SelectedCropToPlant))
-        {
-            int current = crops.IndexOf(SelectedCropToPlant);
-            int next = (int)Mathf.Repeat(current + modify, crops.Count);
-            SelectedCropToPlant = crops[next];
-            if (modify != 0) OnCropSet?.Invoke(AllCrops[SelectedCropToPlant]);
-        }
-        else
-        {
-            SelectedCropToPlant = crops[0];
-            OnCropSet?.Invoke(AllCrops[SelectedCropToPlant]);
-        }
-        return AllCrops[SelectedCropToPlant];
-    }
-    public SeedData PreviousCrop()
-    {
-        return GetOrSetFirstCrop(-1);
-    }
-    public SeedData NextCrop()
-    {
-        return GetOrSetFirstCrop(1);
-    }
-    
     /// <summary>
     /// Called when a crop has been planted.
     /// </summary>
     /// <param name="cop"></param>
     public void DoPlantCrop(SeedData cop)
     {
-        //monitor crop supply
+        //add experience based on crop?
     }
 
     /// <summary>
@@ -308,33 +288,8 @@ public class GameManager : MonoBehaviour
     /// <param name="crop"></param>
     public void DoHarvestCrop(SeedData crop)
     {
-        ModifyWallet(crop.SellPrice);
+        //add experience based on crop?
         GameInventory.AddItem(crop, 1);
-    }
-
-    /// <summary>
-    ///  Called when we want to purchase a crop.
-    /// </summary>
-    /// <param name="crop"></param>
-    public void PurchaseCrop(SeedData crop)
-    {
-    }
-
-    /// <summary>
-    /// Do we have enough crops to plant?
-    /// </summary>
-    /// <returns></returns>
-    public bool CanPlantCrop()
-    {
-        return true;
-    }
-
-    /// <summary>
-    /// Called when the buy crop button is pressed.
-    /// </summary>
-    /// <param name="crop"></param>
-    public void DoBuyCropButton(SeedData crop)
-    {
     }
     #endregion
 }

@@ -11,7 +11,7 @@ public interface ITimeManager
     public bool RegisterListener(ITimeListener listener);
     public bool UnregisterListener(ITimeListener listener);
 
-    public IEnumerator Tick(bool single = false);
+    public IEnumerator Tick(int tick = 1, bool single = false);
     public string DisplayTime();
     public void SetTick(bool canTick);
     public void SetTimeDelta(float amount, TIME_STATE state);

@@ -8,24 +8,41 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
     [SerializeField] private List<MeshFarmToolCollection> FarmToolCollection = new List<MeshFarmToolCollection>();
 
     public Action<MeshFarmToolCollection> OnToolSwapped;
+    public Action<MeshFarmToolCollection> OnToolUpdated;
     private void Start()
     {
-        foreach (var tool in FarmToolCollection) {
-            GameManager.Instance.AddWeapon(tool.Data, 1);
-        }
-        SwapTool(TOOL_TYPE.Hands);
+        GameManager.Instance.OnToolUpdated += DoToolUpdated;        
+        TrySwapTool(TOOL_TYPE.Hands);
+    }
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnToolUpdated -= DoToolUpdated;
+    }
+
+    private void DoToolUpdated(Item obj)
+    {
+        if (obj == null) return;
+        foreach (var tool in FarmToolCollection)
+        {
+            if(tool.Data.ToolType == ((ToolData)obj.Data).ToolType)
+            {
+                OnToolSwapped?.Invoke(tool);
+            }
+        }        
     }
 
     public IFarmToolCollection GetCurrentTool()
     {
-        Item currentItem = GameManager.Instance.GetWeapon();
-        if (currentItem != null && currentItem.Data is ToolData currentTool)
-        {
-            if (TryGetTool(currentTool.ToolType, out IFarmToolCollection tool))
+        Item currentItem = GameManager.Instance.GetToolbelt();
+        if (currentItem != null) return null;
+        
+            foreach (var item in FarmToolCollection)
             {
-                return tool;
+                if (item.Data.ID == currentItem.Data.ID)
+                {
+                    return item;
+                }
             }
-        }
         return null;
     }
 
@@ -39,31 +56,20 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
         IFarmToolCollection tool = GetCurrentTool();
         return tool != null ? tool.Data.ToolType : TOOL_TYPE.None;
     }
-    public void SwapTool(TOOL_TYPE type)
+    public void TrySwapTool(TOOL_TYPE type)
     {
-        foreach (var item in FarmToolCollection)
+        HashSet<Item> tools = new HashSet<Item>(GameManager.Instance.GetAllTools());
+        foreach (var item in tools)
         {
-            if(item.Data.ToolType == type)
-            {
-                if (GameManager.Instance.SetWeapon(item.Data.ID))
-                {
-                    OnToolSwapped?.Invoke(item);
-                    return;
-                }
+            if(((ToolData)item.Data).ToolType == type){
+                GameManager.Instance.SetToolbelt(item.Data.ID);
+                return;
             }
         }
     }
     public TOOL_TYPE NextTool()
-    {
-        Item currentItem = GameManager.Instance.GetWeapon();
-        
-        
-        int current = FarmToolCollection.FindIndex((x) =>
-        {
-            return currentItem != null && currentItem.Data is ToolData currentTool && x.Data.ToolType == currentTool.ToolType;            
-        });
-        int next = (int)Mathf.Repeat(current +1, FarmToolCollection.Count);
-        return FarmToolCollection[next].Data.ToolType;
+    {        
+        return ((ToolData)GameManager.Instance.GetNextToolbelt()?.Data).ToolType;
     }
     public void RegisterListener(Action<IFarmToolCollection> listener)
     {
@@ -76,18 +82,19 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
 
     public IEnumerable<IFarmToolCollection> GetTools()
     {
-        foreach (var item in FarmToolCollection)
+        HashSet<Item> tools = new HashSet<Item>(GameManager.Instance.GetAllTools());
+        foreach (var item in tools)
         {
-            yield return item;
-        }
+            yield return FarmToolCollection.Find(x => x.Data.ID == item.Data.ID);
+        }        
     }
 
-    public bool TryGetTool(TOOL_TYPE tool, out IFarmToolCollection collection)
+    protected bool TryGetTool(string toolID, out IFarmToolCollection collection)
     {
         collection = null;
         foreach (var item in FarmToolCollection)
         {
-            if (item.Data.ToolType == tool)
+            if (item.Data.ID == toolID)
             {
                 collection = item;
                 return true;

@@ -1,6 +1,4 @@
 using GameTime;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -28,11 +26,11 @@ public class BushPlot : PropItem, ITimeListener
         Assert.IsNotNull(ItemReturned.Data, $"No item given to {nameof(BushPlot)}: {name}");
     }
     #region TimeListener
-    public override void ClockUpdate(TimeStruct timestamp)
+    public override void ClockUpdate(int tick)
     {
         if (!IsDone)
         {
-            GrowthTick--;
+            GrowthTick-= tick;
             IsDone = GrowthTick <= 0;
         }
     }

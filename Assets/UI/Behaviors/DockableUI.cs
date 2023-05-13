@@ -18,7 +18,7 @@ public class DockableUI : DraggableUI
         }
         else
         {
-            if (GameManager.Instance.InputManager.GetPointingAt(Layers, out GameObject hit) && hit.TryGetComponent(out IUIDock dock))
+            if (GameManager.Instance.Selection.HoverValidated && GameManager.Instance.Selection.Hovered.SelectableObject.TryGetComponent(out IUIDock dock))
             {
                 dock.Docked(this);
             }

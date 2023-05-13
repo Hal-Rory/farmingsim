@@ -5,8 +5,15 @@ using UnityEngine.UI;
 public class ListView : MonoBehaviour
 {
     protected Dictionary<string, GameObject> Cards = new Dictionary<string, GameObject>();
-    [SerializeField] private ScrollRect Scroll;
+    [SerializeField] private RectTransform Container;
     public int Count => Cards.Count;
+
+    public bool TryGetItem<T>(string id, out T item)
+    {
+        bool success = Cards.TryGetValue(id, out GameObject go);
+        item = go.GetComponent<T>();
+        return success;
+    }
 
     public virtual T AddCard<T>(string id, GameObject go, bool create = true)
     {
@@ -14,17 +21,21 @@ public class ListView : MonoBehaviour
         {
             return cardObject.GetComponent<T>();
         } else {
-            GameObject new_obj;
-            if (create)
-            {
-                new_obj = Instantiate(go, Scroll.content);
-            } else
-            {
-                new_obj = go;
-            }
-            Cards.Add(id, new_obj);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(Scroll.content);
-            return new_obj.GetComponent<T>();
+            GameObject cardGO = GetOrCreateCard(go, create);
+            Cards.Add(id, cardGO);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(Container);
+            return cardGO.GetComponent<T>();
+        }
+    }
+    protected virtual GameObject GetOrCreateCard(GameObject go, bool create)
+    {
+        if (create)
+        {
+            return Instantiate(go, Container);
+        }
+        else
+        {
+            return go;
         }
     }
     public virtual void RemoveCard(string id, bool destroy = true)
@@ -36,7 +47,7 @@ public class ListView : MonoBehaviour
                 Destroy(Cards[id].gameObject);
             }
             Cards.Remove(id);
-            LayoutRebuilder.ForceRebuildLayoutImmediate(Scroll.content);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(Container);
         }
     }
     public virtual void RemoveCards()
@@ -47,17 +58,5 @@ public class ListView : MonoBehaviour
         {
             RemoveCard(item);
         }
-    }
-    public void GoToBottom()
-    {
-        SetScrollPos(0);
-    }
-    public void GoToTop()
-    {
-        SetScrollPos(1);
-    }
-    private void SetScrollPos(float pos)
-    {
-        Scroll.verticalNormalizedPosition = pos;
     }
 }

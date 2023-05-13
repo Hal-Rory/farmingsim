@@ -15,6 +15,7 @@ public class InfoHeader : MonoBehaviour, IFilterable
     }
     public void SetInfo(string info)
     {
+        if (Info == null) return;
         Info.text = info;
     }  
     public virtual void SetEmpty()

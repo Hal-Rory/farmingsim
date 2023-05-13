@@ -8,10 +8,14 @@ public abstract class ThemedUI : MonoBehaviour, IThemed
         if (ManualUpdate)
         {
             ManualUpdate= false;
-            UIThemeManager.LoadOrCreateTheme(UIThemeManager.CurrentTheme);
-            UpdateTheme();
+            OnManualUpdate();
         }
 #endif
+    }
+    public void OnManualUpdate()
+    {        
+        UIThemeManager.LoadOrCreateTheme(UIThemeManager.CurrentTheme);
+        UpdateTheme();
     }
     public UIThemeData Override;
     public abstract void UpdateTheme();    

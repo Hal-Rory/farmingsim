@@ -187,8 +187,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Label: {fileID: 3229614794907082511}
   Icon: {fileID: 3229614793493866844}
+  EmptyImage: {fileID: 21300000, guid: 9bad9232a26856645b1d7e3e1732ba07, type: 3}
   <ID>k__BackingField: 
   Selectable: {fileID: 293784240431453318}
+  LabelColorInactive: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &293784240431453318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +216,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
     m_PressedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
     m_SelectedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
-    m_DisabledColor: {r: 0.15294118, g: 0.16470589, b: 0.17254902, a: 0.19607843}
+    m_DisabledColor: {r: 0.15294118, g: 0.16470589, b: 0.17254902, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0
   m_SpriteState:
@@ -317,11 +319,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 15
+    m_FontSize: 26
     m_FontStyle: 0
     m_BestFit: 1
     m_MinSize: 10
-    m_MaxSize: 15
+    m_MaxSize: 26
     m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1

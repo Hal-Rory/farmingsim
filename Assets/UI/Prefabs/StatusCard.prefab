@@ -270,7 +270,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
     m_PressedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
     m_SelectedColor: {r: 0.93725497, g: 0.75294125, b: 0.34509805, a: 1}
-    m_DisabledColor: {r: 0.15294118, g: 0.16470589, b: 0.17254902, a: 0.19607843}
+    m_DisabledColor: {r: 0.15294118, g: 0.16470589, b: 0.17254902, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0
   m_SpriteState:
@@ -627,8 +627,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d032efdcc96a34499bfacfc3abcbd6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label: {fileID: 7401517142464755772}
-  Icon: {fileID: 7401517141865221743}
+  <Label>k__BackingField: {fileID: 0}
+  <Icon>k__BackingField: {fileID: 0}
+  EmptyImage: {fileID: 0}
   <ID>k__BackingField: wm0
 --- !u!1 &7401517142464755762
 GameObject:

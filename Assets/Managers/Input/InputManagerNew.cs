@@ -5,8 +5,7 @@ using UnityEngine.InputSystem;
 
 public class InputManagerNew : MonoBehaviour, IInputManager
 {
-    [SerializeField] private Camera Cam;
-    [SerializeField] private float RayDist = 100;
+    [SerializeField] private Camera Cam;    
     public Camera ActiveCamera => Cam;
     [SerializeField] private InputActionAsset Asset;
 
@@ -21,7 +20,9 @@ public class InputManagerNew : MonoBehaviour, IInputManager
     private InputAction MenuAction;
     [SerializeField] private string MenuActionName = "Player/InteractMenu";
     private InputAction PointerActionVector;
-    [SerializeField] private string PointerActionName = "UI/Point";    
+    [SerializeField] private string PointerActionName = "UI/Point";
+    private InputAction EquipmentAction;
+    [SerializeField] private string EquipmentActionName = "Player/Equipment";
     private void Start()
     {
         MoveActionVector = Asset.FindAction(MoveActionName);
@@ -30,6 +31,8 @@ public class InputManagerNew : MonoBehaviour, IInputManager
         LookActionVector.Enable();
         PrimaryAction = Asset.FindAction(PrimaryActionName);
         PrimaryAction.Enable();
+        EquipmentAction = Asset.FindAction(EquipmentActionName);
+        EquipmentAction.Enable();
         SecondaryAction = Asset.FindAction(SecondaryActionName);
         SecondaryAction.Enable();
         MenuAction = Asset.FindAction(MenuActionName);
@@ -40,12 +43,14 @@ public class InputManagerNew : MonoBehaviour, IInputManager
         PrimaryAction.performed += OnPrimaryAction;
         SecondaryAction.performed += OnSecondaryAction;
         MenuAction.performed += OnMenuAction;
+        EquipmentAction.performed += OnEquipmentAction;
     }
     private void OnDestroy()
     {
         PrimaryAction.performed -= OnPrimaryAction;
         SecondaryAction.performed -= OnSecondaryAction;
         MenuAction.performed -= OnMenuAction;
+        EquipmentAction.performed -= OnEquipmentAction;
     }
 
     private void OnPrimaryAction(InputAction.CallbackContext obj)
@@ -86,19 +91,33 @@ public class InputManagerNew : MonoBehaviour, IInputManager
 
         }
     }
+    private void OnEquipmentAction(InputAction.CallbackContext obj)
+    {
+        OnEquipmentInteraction?.Invoke(obj.performed);
+        if (obj.performed == true)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
 
     public Ray GetPointerWorldPosition()
     {
         return Cam.ScreenPointToRay(PointerActionVector.ReadValue<Vector2>());
     }
-    public bool GetPointingAt(LayerMask layers, out GameObject hitGO)
+    public bool GetPointingAt(LayerMask layers, out GameObject hitGO, out float hitDist)
     {
         hitGO = null;
+        hitDist = 0f;
         Ray ray = GetPointerWorldPosition();
-        Debug.DrawRay(ray.origin, ray.direction * RayDist);
-        if (Physics.Raycast(ray, out RaycastHit hit, RayDist, layers))
+        Debug.DrawRay(ray.origin, ray.direction);
+        if (Physics.Raycast(ray, out RaycastHit hit, layers))
         {
             hitGO = hit.collider.gameObject;
+            hitDist = hit.distance;
             return true;
         }
         return false;
@@ -133,6 +152,16 @@ public class InputManagerNew : MonoBehaviour, IInputManager
     public void UnregisterMenuListener(Action<bool> listener)
     {
         OnMenuInteraction -= listener;
+    }
+    public Action<bool> OnEquipmentInteraction;
+    public void RegisterEquipmentListener(Action<bool> listener)
+    {
+        OnEquipmentInteraction += listener;
+    }
+
+    public void UnregisterEquipmentListener(Action<bool> listener)
+    {
+        OnEquipmentInteraction -= listener;
     }
     public Vector2 GetPointerDeltaInput()
     {

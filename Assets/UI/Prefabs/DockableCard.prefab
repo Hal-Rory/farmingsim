@@ -69,11 +69,11 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 15
+    m_FontSize: 26
     m_FontStyle: 0
     m_BestFit: 1
     m_MinSize: 8
-    m_MaxSize: 15
+    m_MaxSize: 26
     m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1
@@ -190,8 +190,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d032efdcc96a34499bfacfc3abcbd6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Label: {fileID: 3349427355619436863}
-  Icon: {fileID: 3349427357301088108}
+  <Label>k__BackingField: {fileID: 3349427355619436863}
+  <Icon>k__BackingField: {fileID: 3349427357301088108}
+  EmptyImage: {fileID: 21300000, guid: 9bad9232a26856645b1d7e3e1732ba07, type: 3}
   <ID>k__BackingField: wm0
 --- !u!114 &3349427355640811888
 MonoBehaviour:
@@ -224,7 +225,6 @@ MonoBehaviour:
   StartLocalPosition: {x: 0, y: 0, z: 0}
   _snapToOrigin: 0
   CheckUI: 0
-  TagFilter: 
   Layers:
     serializedVersion: 2
     m_Bits: 0

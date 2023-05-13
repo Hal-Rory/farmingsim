@@ -14,7 +14,9 @@ public class ProfileInfoPanel : InfoHeader
     }
     public void SetBust(Sprite bust)
     {
-        Bust.sprite = bust;
+        if (Bust == null) return;
+        if (bust == null) Bust.sprite = Placeholder;
+        else Bust.sprite = bust;
     }
     public override void SetEmpty()
     {

@@ -1,78 +1,82 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
-using static UnityEditor.Progress;
 
 namespace Items
 {
-    public class UIFarmToolWheel : MonoBehaviour
+    public class UIFarmToolWheel : UIPage
     {
-        [SerializeField] private List<InventoryUISlot> Slots = new List<InventoryUISlot>();
-
-        protected void Start()
+        private Dictionary<string, InventoryUISlot> Slots = new Dictionary<string, InventoryUISlot>();
+        private IFarmToolStateManager FarmToolManager => GameManager.Instance.FarmToolManager;
+        public Card CurrentCard;
+        public GameObject SlotPrefab;
+        [SerializeField]
+        private float Radius = 1;
+        private InventoryUISlot SelectedSlot;
+        protected override void Start()
         {
-            Assert.IsNotNull(Slots, $"No slots for {name}");
-            if(GameManager.Instance.FarmToolManager.GetCurrentTool() != null) SetCurrentToolActive(GameManager.Instance.FarmToolManager.GetCurrentTool());
-            GameManager.Instance.FarmToolManager.RegisterListener(SetCurrentToolActive);
-            IEnumerable<Item> inv = GameManager.Instance.GetWeapons();
-
-            foreach ( var item in inv ) { 
-                DoUpdated(item);
-            }            
-            GameManager.Instance.OnWeaponsUpdated += DoUpdated;
+            base.Start();
+            if (FarmToolManager.GetCurrentTool() != null) SetCurrentToolActive(FarmToolManager.GetCurrentTool());
+            FarmToolManager.RegisterListener(SetCurrentToolActive);
+            GameManager.Instance.InputManager.RegisterEquipmentListener(DoOpenMenu);
+            UpdateTools(FarmToolManager.GetTools());
+        }        
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            GameManager.Instance.InputManager.UnregisterEquipmentListener(DoOpenMenu);
+            if (GameManager.Instance.FarmToolManager != null) GameManager.Instance.FarmToolManager.UnregisterListener(SetCurrentToolActive);
+        }
+        public void DoOpenMenu(bool interact)
+        {
+            if (interact)
+            {
+                if (!gameObject.activeSelf)
+                {
+                    OpenFocus();
+                } else
+                {
+                    CloseFocus();
+                }
+            }
         }
         private void SetCurrentToolActive(IFarmToolCollection tool)
         {
             SetItemSelected(tool.Data.ID, true);
+            CurrentCard.Set(tool.Data.ID, tool.Data.Name, tool.Data.Display);
         }
-
-        protected virtual bool ValidateItem(Item item)
+        private void OnEnable()
         {
-            return item != null && item.Data is ToolData;
+            UpdateTools(FarmToolManager.GetTools());
         }
-        protected void OnDestroy()
+        protected void UpdateTools(IEnumerable<IFarmToolCollection> tools)
         {
-            if (GameManager.Instance != null) GameManager.Instance.OnWeaponsUpdated -= DoUpdated;
-            if (GameManager.Instance.FarmToolManager != null) GameManager.Instance.FarmToolManager.UnregisterListener(SetCurrentToolActive);
-        }
-
-        protected virtual void DoUpdated(Item item)
-        {
-            if (!ValidateItem(item)) return;
-
-            foreach (var slot in Slots)
+            if (tools == null) return;
+            List<IFarmToolCollection> toolList = tools.ToList();
+            for (int i = 0; i < tools.Count(); i++)
             {
-                if (slot.Active && slot.InventoryCard.ID == item.Data.ID)
+                float radians = 2 * MathF.PI / tools.Count() * i;
+
+                Vector3 position = (CurrentCard.transform as RectTransform).position + new Vector3(Mathf.Sin(radians), Mathf.Cos(radians)) * Radius; // Radius is just the distance away from the point
+                InventoryUISlot slot;
+                
+                if (!Slots.TryGetValue(toolList[i].Data.ID, out slot))
                 {
-                    slot.InventoryCard.SetLabel(item.Amount.ToString());
-                    return;
+                    slot = Instantiate(SlotPrefab, transform).GetComponent<InventoryUISlot>();
+                    Slots.Add(toolList[i].Data.ID, slot);
                 }
-                else if (!slot.Active)
-                {
-                    slot.SetCardActive(true);
-                    slot.InventoryCard.Set(item.Data.ID, item.Amount.ToString(), item.Data.Display);
-                    SetSlot(slot, item);
-                    return;
-                }
+                (slot.transform as RectTransform).position = position;
+                (slot.transform as RectTransform).sizeDelta = Vector2.one * 100;
             }
-            Debug.Log("Not enough slots for inventory");
-        }
-        protected virtual void SetSlot(InventoryUISlot slot, Item item)
-        {
-            
         }
         public void SetItemSelected(string itemID, bool selected)
         {
-            foreach (var slot in Slots)
+            if (SelectedSlot != null) SelectedSlot.SetSlotSelected(false);
+            if (Slots.TryGetValue(itemID, out InventoryUISlot slot))
             {
-                if(!string.IsNullOrEmpty(itemID) && slot.InventoryCard.ID == itemID)
-                {
-                    slot.SetSlotSelected(selected);
-                } else
-                {
-                    slot.SetSlotSelected(false);
-                }
+                slot.SetSlotSelected(selected);
+                if(selected) SelectedSlot = slot;
             }
         }
     }

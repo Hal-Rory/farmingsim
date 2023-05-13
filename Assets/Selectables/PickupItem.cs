@@ -11,7 +11,7 @@ namespace Items
         {
             Gizmos.DrawSphere(transform.TransformPoint(HoverPoint), .1f);
         }
-        public SELECTABLE_TYPE Type => Item.Data.DataType;
+        public SELECTABLE_TYPE Type => Item.Data.SelectableType;
 
         public void OnDeselect()
         {

@@ -1,61 +1,26 @@
+using GameTime;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TimeUI : UIPage
+[Serializable]
+public class TimeUI : ITimeListener
 {
-    [SerializeField] private ToggleCard Pause;
-    [SerializeField] private ToggleCard Play;
-    [SerializeField] private ToggleCard Fast;
     [SerializeField] private Text TimeLabel;
 
-    protected override void Start()
+    public void ClockUpdate(int tick)
     {
-        base.Start();
-        Pause.Selectable.onValueChanged.AddListener(TryPauseTime);
-        Play.Selectable.onValueChanged.AddListener(TryStartTime);
-        Fast.Selectable.onValueChanged.AddListener(TrySpeedupTime);
-        DoTimeChanged(ITimeManager.Instance.State);
-        GameManager.Instance.OnTimeUpdated += DoTimeChanged;        
-    }
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        Pause.Selectable.onValueChanged.RemoveListener(TryPauseTime);
-        Play.Selectable.onValueChanged.RemoveListener(TryStartTime);
-        Fast.Selectable.onValueChanged.RemoveListener(TrySpeedupTime);
+        TimeStruct timestamp = ITimeManager.Instance.CurrentTime;
+        TimeLabel.text = $"{timestamp.Day}, {timestamp.Hour}\n{TimeUtility.GetMonthName(timestamp.Month)} {(timestamp.Date):00}, Year {(timestamp.Year)}";
     }
 
-    private void DoTimeChanged(ITimeManager.TIME_STATE state)
+    public virtual void Register()
     {
-        Play.Selectable.SetIsOnWithoutNotify(state == ITimeManager.TIME_STATE.playing);
-        Pause.Selectable.SetIsOnWithoutNotify(state == ITimeManager.TIME_STATE.paused);
-        Fast.Selectable.SetIsOnWithoutNotify(state == ITimeManager.TIME_STATE.fast);
+        ClockUpdate(0);
+        ITimeManager.Instance.RegisterListener(this);
     }
-
-    private void Update()
+    public virtual void Unregister()
     {
-        TimeLabel.text = ITimeManager.Instance.DisplayTime();
-    }
-
-    private void TryPauseTime(bool pause)
-    {
-        if (pause)
-        {
-            GameManager.Instance.PauseTime();
-        }
-    }
-    private void TryStartTime(bool start)
-    {
-        if (start)
-        {
-            GameManager.Instance.PlayRegularTime();
-        }
-    }
-    private void TrySpeedupTime(bool speedup)
-    {
-        if (speedup)
-        {
-            GameManager.Instance.SpeedUpTime();
-        }
+        ITimeManager.Instance.UnregisterListener(this);
     }
 }

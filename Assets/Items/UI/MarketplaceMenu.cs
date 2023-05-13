@@ -1,32 +1,73 @@
 using Items;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 public class MarketplaceMenu : UIPage
 {
     [SerializeField] private string MarketName;
-    [SerializeField] private InventoryList MarketInventory;
-    [SerializeField] private InventoryList PlayerInventory;
+
     [SerializeField] private AmountWindow AmountWindow;
-    private MarketManager MarketManager => GameManager.Instance.MarketManager;    
-    private int Money;
-    protected override void Start()
+    [SerializeField] private ProfileInfoPanel HeaderPanel;
+    [SerializeField] private Card TooltipCard;
+    [SerializeField] private GameObject CardPrefab;
+    [SerializeField] private InventoryList<ButtonCard> MarketInventory = new InventoryList<ButtonCard>();
+    [SerializeField] private InventoryList<ButtonCard> PlayerInventory = new InventoryList<ButtonCard>();
+    private MarketManager MarketManager => GameManager.Instance.MarketManager;
+    private bool MarketActive = true;
+
+    private void Awake()
     {
-        base.Start();
-        if(!string.IsNullOrEmpty(MarketName)) ChangeMarket(MarketName);
         AmountWindow.OnCancelled = () => SetAmountWindowActive(false);
-        MarketInventory.SetCardSetup(SelectMarketCard);
-        MarketManager.OnMarketUpdate += DoMarketUpdate;
-        MarketManager.OnMarketSet += DoMarketSet;
-        DoMarketSet(MarketManager.GetItems());
-        PlayerInventory.SetCardSetup(SelectPlayerCard);
-        PlayerInventory.Validation = ValidateItem;
-        GameManager.Instance.PlayerInventoryManager.RegisterPlayerInventory(ref PlayerInventory);
+
+        MarketManager.OnMarketUpdate += UpdateMarketInventory;
+        MarketManager.OnMoneyUpdated += DoMarketWalletUpdated;
+
+        GameManager.Instance.OnItemUpdated += UpdatePlayerInventory;
+        GameManager.Instance.OnMoneyUpdated += DoMoneyUpdated;
     }
 
+    private void DoMarketWalletUpdated(string market, int amount)
+    {
+        if (market != MarketName) return;
+        if(MarketActive)
+        {
+            HeaderPanel.SetHeader(MarketName, $"{MarketName}");
+        }
+        HeaderPanel.SetInfo($"${amount}");
+    }
+    private void DoMoneyUpdated(int amount)
+    {
+         if(!MarketActive) 
+        {
+            HeaderPanel.SetHeader("player", "Inventory");
+        }
+        HeaderPanel.SetInfo($"${amount}");
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        AmountWindow.OnCancelled = null;
+        if (GameManager.Instance)
+        {
+            MarketManager.OnMarketUpdate -= UpdateMarketInventory;
+            MarketManager.OnMoneyUpdated -= DoMarketWalletUpdated;
+
+            GameManager.Instance.OnItemUpdated -= UpdatePlayerInventory;
+            GameManager.Instance.OnMoneyUpdated -= DoMoneyUpdated;
+        }
+    }
+    private void OnEnable()
+    {
+        if (!string.IsNullOrEmpty(MarketName)) ChangeMarket(MarketName);
+        OnOpenMarketInventory();
+    }
+
+    private void SetAmountWindowActive(bool active)
+    {
+        AmountWindow.gameObject.SetActive(active);
+    }
     public void ChangeMarket(string marketName)
     {
         SetAmountWindowActive(false);
@@ -37,82 +78,115 @@ public class MarketplaceMenu : UIPage
         }
         MarketName = marketName;
         MarketManager.CreateWallet(MarketName);
-        if (MarketManager.GetWallet(MarketName, out Wallet wallet))
+        DoMarketWalletUpdated(MarketName, MarketManager.GetWalletBalance(MarketName));
+    }
+
+    public void OnOpenMarketInventory()
+    {
+        PlayerInventory.SetActive(false);
+        UpdateItems(MarketManager.GetItems(), MarketInventory);
+        MarketActive = true;
+        HeaderPanel.SetHeader(MarketName, $"{MarketName}");
+        DoMarketWalletUpdated(MarketName, MarketManager.GetWalletBalance(MarketName));
+        MarketInventory.SetActive(true);
+    }
+    public void OnOpenPlayerInventory()
+    {
+        MarketInventory.SetActive(false);
+        UpdateItems(GameManager.Instance.GetInventory(SELECTABLE_TYPE.item), PlayerInventory);
+        MarketActive = false;
+        HeaderPanel.SetHeader(MarketName, $"{MarketName}");
+        DoMoneyUpdated(GameManager.Instance.WalletBalance);
+        PlayerInventory.SetActive(true);
+    }
+
+    private void UpdateMarketInventory(Item item)
+    {
+        UpdateItem(item, MarketInventory);
+    }
+
+    private void UpdatePlayerInventory(Item item)
+    {
+        UpdateItem(item, PlayerInventory);
+    }
+
+    private void SetHeader(Item item)
+    {
+        if (item != null && item.Amount > 0)
         {
-            Money = wallet.Balance;
+            HeaderPanel.SetPanel(item.Data.ID, item.Data.Name, item.Data.Description, item.Data.Display);
         }
-        MarketInventory.SetHeader($"{MarketName}", $"Vender Money: ${Money}");
-    }
-
-    private bool ValidateItem(Item item)
-    {
-        return item.Data is not WeaponData;
-    }
-
-    protected override void OnDestroy()
-    {
-        base.OnDestroy();
-        if (GameManager.Instance)
+        else
         {
-            MarketManager.OnMarketUpdate -= DoMarketUpdate;
-            MarketManager.OnMarketSet -= DoMarketSet;
-            GameManager.Instance.PlayerInventoryManager.UnregisterPlayerInventory(ref PlayerInventory);
+            HeaderPanel.SetEmpty();
         }
     }
 
-    private void SetAmountWindowActive(bool active)
+    private void UpdateItems(IEnumerable<Item> items, InventoryList<ButtonCard> list)
     {
-        AmountWindow.gameObject.SetActive(active);
-    }
-
-    private void SelectMarketCard(Card card, Item item)
-    {
-        if (card == null) return;
-        if (!card.TryGetComponent(out Button button))
+        foreach (Item item in items)
         {
-            button = card.gameObject.AddComponent<Button>();
+            UpdateItem(item, list);
         }
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() =>
+        HashSet<string> itemIDs = new HashSet<string>(items.Select((a, b) => a.Data.ID));
+        list.FindMissing(itemIDs);
+    }
+    private void UpdateItem(Item item, InventoryList<ButtonCard> list)
+    {
+        if (!list.UpdateCard(item, SetCard))
+        {
+            if (item.Data.Sellable) list.AddCard(item, CardPrefab, SetCard);
+        }
+        else
+        {
+            if (!item.Data.Sellable) list.RemoveCard(item.Data.ID);
+        }
+    }
+
+    private void SetCard(Item item, ButtonCard card)
+    {        
+        void OnCardSelected()
         {
             AmountWindow.Setup(0, item.Amount);
-            AmountWindow.OnAmountSet = (int amount) => ItemPurchasedFromMarket(item.Data, amount);
+            AmountWindow.OnAmountSet = (int amount) =>
+            {
+                if (MarketActive)
+                {
+                    BuyFromMarket(item.Data, amount);
+                } else
+                {
+                    SellToMarket(item.Data, amount);
+                }
+            };
+
             SetAmountWindowActive(true);
-        });
-        button.interactable = item.Amount > 0;        
-    }
-    private void SelectPlayerCard(Card card, Item item)
-    {
-        if (card == null) return;
-        if (!card.TryGetComponent(out Button button))
-        {
-            button = card.gameObject.AddComponent<Button>();
         }
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() =>
+        card.Set(item.Data.ID,$"{item.Data.Name}({item.Amount})", item.Data.Display, OnCardSelected);
+        card.Interactable = item.Amount > 0;
+        if (!card.TryGetComponent(out Hoverable hoverable))
         {
-            AmountWindow.Setup(0, item.Amount);
-            AmountWindow.OnAmountSet = (int amount) => ItemSoldFromMarket(item.Data, amount);
-            SetAmountWindowActive(true);
+            hoverable = card.gameObject.AddComponent<Hoverable>();
+        }
+        hoverable.PointerEnter.RemoveAllListeners();
+        hoverable.PointerExit.RemoveAllListeners();
+        hoverable.PointerEnter.AddListener((hoverable) =>
+        {
+            TooltipCard.Set(card.ID, item.Data.Name, null);
+            TooltipCard.gameObject.SetActive(true);
+            TooltipManager.Instance.SetCard(hoverable, TooltipCard.gameObject, transform);
         });
-        button.interactable = item.Amount > 0;        
+        hoverable.PointerExit.AddListener((hoverable) =>
+        {
+            TooltipCard.gameObject.SetActive(false);
+            TooltipManager.Instance.RemoveLast(transform);
+        });
     }
 
-    private void DoMarketUpdate(Item item)
-    {
-        MarketInventory.SetOrAddCard(item);
-    }
-
-    private void DoMarketSet(IEnumerable<Item> items)
-    {
-        MarketInventory.UpdateInventory(items);
-    }
-
-    private void ItemPurchasedFromMarket(ItemData item, int amountPurchased)
+    private void BuyFromMarket(ItemData item, int amountPurchased)
     {
         if (MarketManager.CheckItemStock(item, amountPurchased))
         {
-            if (GameManager.Instance.CheckBalance(item.SellPrice * amountPurchased) && TryUpdateWallet(item.SellPrice * amountPurchased))
+            if (GameManager.Instance.CheckBalance(item.SellPrice * amountPurchased) && MarketManager.UpdateWallet(MarketName, item.SellPrice * amountPurchased))
             {
                 GameManager.Instance.AddItem(item, amountPurchased);
                 GameManager.Instance.ModifyWallet(-item.SellPrice * amountPurchased);
@@ -121,11 +195,11 @@ public class MarketplaceMenu : UIPage
             }
         }
     }
-    private void ItemSoldFromMarket(ItemData item, int amountSold)
+    private void SellToMarket(ItemData item, int amountSold)
     {
         if (MarketManager.CheckWalletBalance(MarketName, item.SellPrice * amountSold))
         {
-            if (TryUpdateWallet(-item.SellPrice * amountSold))
+            if (MarketManager.UpdateWallet(MarketName, -item.SellPrice * amountSold))
             {
                 MarketManager.ModifyItem(item, amountSold);
                 GameManager.Instance.RemoveItem(item, -amountSold);
@@ -136,9 +210,6 @@ public class MarketplaceMenu : UIPage
     }
     private bool TryUpdateWallet(int amount)
     {
-        if (!MarketManager.UpdateWallet(MarketName, amount, out Wallet wallet)) return false;
-        Money = wallet.Balance;
-        MarketInventory.SetHeader($"{MarketName}", $"Vender Money: ${Money}");
-        return true;
+        return MarketManager.UpdateWallet(MarketName, amount);
     }
 }

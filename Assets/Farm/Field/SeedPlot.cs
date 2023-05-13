@@ -1,6 +1,5 @@
 using GameTime;
 using Items;
-using System;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -94,14 +93,14 @@ namespace Farm.Field
         }
         #endregion
         #region ITimeListener        
-        public override void ClockUpdate(TimeStruct timestamp)
+        public override void ClockUpdate(int tick)
         {
             if (WaterDecay > 0)
             {
                 float originalDecay = LastWaterLevel / Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
                 float currentDecay = WaterDecay / Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
                 WaterLevel = currentDecay / originalDecay;
-                WaterDecay -= Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1));
+                WaterDecay -= Mathf.CeilToInt(WaterDecayDelta / (TimeUtility.DayLength + 1)) * tick;
             }
             else
             {
@@ -109,7 +108,7 @@ namespace Farm.Field
             }
             if (!HasCrop() && State == IField.FieldState.tilled && TillDecay > 0)
             {
-                TillDecay--;                
+                TillDecay-= tick;                
                 if(TillDecay <= 0 && WaterDecay == 0)
                 {
                     SetState(IField.FieldState.untilled);
@@ -163,7 +162,9 @@ namespace Farm.Field
                     break;
                 case TOOL_TYPE.Hands:
                     if (!TryHarvest())
-                        PlantNewCrop(GameManager.Instance.GetOrSetFirstCrop());
+                        if(!PlantNewCrop(GameManager.Instance.GetItem().Data)){
+                            //shake or glow or something
+                        }
                     break;
             }            
         }
@@ -190,16 +191,21 @@ namespace Farm.Field
         /// <summary>
         /// Called when we interact with a tilled tile and we have crops to plant.
         /// </summary>
-        /// <param name="crop"></param>
-        public void PlantNewCrop(SeedData crop)
+        /// <param name="item"></param>
+        public bool PlantNewCrop(ItemData item)
         {
-            if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop())
-                return;            
-            Current = new Crop(crop);
-            Current.Plant(crop, ITimeManager.Instance.CurrentTime);
-            SetCropRenderer(Current.UpdateCropSprite(0));
-            if (State == IField.FieldState.watered_tilled) SetState(IField.FieldState.watered_crop);
-            if (State == IField.FieldState.tilled) SetState(IField.FieldState.tilled_crop);
+            if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop() || item is not SeedData seed)
+                return false;
+            if (GameManager.Instance.RemoveItem(item, 1))
+            {
+                Current = new Crop(seed);
+                Current.Plant(seed, ITimeManager.Instance.CurrentTime);
+                SetCropRenderer(Current.UpdateCropSprite(0));
+                if (State == IField.FieldState.watered_tilled) SetState(IField.FieldState.watered_crop);
+                if (State == IField.FieldState.tilled) SetState(IField.FieldState.tilled_crop);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

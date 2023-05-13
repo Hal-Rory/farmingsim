@@ -46,18 +46,18 @@ namespace GameTime
             return TimeListeners.Remove(listener);
         }
 
-        public IEnumerator Tick(bool single = false)
+        public IEnumerator Tick(int tick = 1, bool single = false)
         {
             while(CanTick)
             {
                 yield return new WaitForSeconds(TimeDelta);
                 if (CanTick)
                 {
-                    _currentTime.AddTime(1);
+                    _currentTime.AddTime(tick);
 
                     foreach (var item in TimeListeners)
                     {
-                        item.ClockUpdate(_currentTime);
+                        item.ClockUpdate(tick);
                     }
                     if (single)
                     {

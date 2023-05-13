@@ -14,14 +14,16 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
     {
         return Cam.ScreenPointToRay(Input.mousePosition);
     }
-    public bool GetPointingAt(LayerMask layers, out GameObject hitGO)
+    public bool GetPointingAt(LayerMask layers, out GameObject hitGO, out float hitDist)
     {
         hitGO = null;
+        hitDist = 0f;
         Ray ray = GetPointerWorldPosition();
         Debug.DrawRay(ray.origin, ray.direction * RayDist);
         if (Physics.Raycast(ray, out RaycastHit hit, RayDist, layers))
         {
             hitGO = hit.collider.gameObject;
+            hitDist = hit.distance;
             return true;
         }
         return false;
@@ -48,6 +50,14 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
             OnMenuInteraction?.Invoke(true);
         }
         else if (Input.GetKeyUp(KeyCode.M))
+        {
+            OnMenuInteraction?.Invoke(false);
+        }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            OnMenuInteraction?.Invoke(true);
+        }
+        else if (Input.GetKeyUp(KeyCode.T))
         {
             OnMenuInteraction?.Invoke(false);
         }
@@ -111,5 +121,15 @@ public class InputManagerBasic : MonoBehaviour, IInputManager
     public void UnregisterMenuListener(Action<bool> listener)
     {
         OnMenuInteraction -= listener;
+    }
+    public Action<bool> OnEquipmentInteraction;
+    public void RegisterEquipmentListener(Action<bool> listener)
+    {
+        OnEquipmentInteraction += listener;
+    }
+
+    public void UnregisterEquipmentListener(Action<bool> listener)
+    {
+        OnEquipmentInteraction -= listener;
     }
 }

@@ -1,49 +1,61 @@
 
 using System;
 
+
 namespace GameTime
 {
-    public enum DayOfWeek
-    {
-        Sunday = 0,
-        Monday = 1,
-        Tuesday = 2,
-        Wednesday = 3,
-        Thursday = 4,
-        Friday = 5,
-        Saturday = 6,
-    }
+
     [Serializable]
     public struct TimeStruct
     {
-        public DayOfWeek Day;
-        public int Year;
-        public int Month;
-        public int Date;
-        public int Hour;                
-        public static TimeStruct Default => new TimeStruct(0, 0, 0, 0);        
+        [UnityEngine.SerializeField] private DayOfWeek _day;
+        [UnityEngine.SerializeField] private int _year;
+        [UnityEngine.SerializeField] private int _month;
+        [UnityEngine.SerializeField] private int _date;
+        [UnityEngine.SerializeField] private int _hour;  
+        
+        public static TimeStruct Default => new TimeStruct(0, 0, 0, 0);
+
+        public string Day { get => _day.ToString(); }
+        public string Year { get => (_year + 1).ToString(); }
+        public string Month { get => (_month + 1).ToString(); }
+        public string Date { get => (_date + 1).ToString(); }
+        public string Hour
+        {
+            get
+            {
+                if (_hour == 0)
+                    return "12:00 am";
+                if (_hour == 12)
+                    return $"{_hour}:00 pm";
+                else if (_hour > 12)
+                    return $"{_hour -12}:00 pm";
+                return $"{_hour}:00 am";
+            }
+        }
+
         public TimeStruct(TimeStruct other)
         {
-            Year = other.Year;
-            Month = other.Month;
-            Date = other.Date;
-            Hour = other.Hour;
-            Day = other.Day;
+            _year = other._year;
+            _month = other._month;
+            _date = other._date;
+            _hour = other._hour;
+            _day = other._day;
             
         }
         public TimeStruct(int time, int date, int month, int year)
         {
-            Year = year;
-            Month = month;
-            Date = date;
-            Hour = time;
-            Day = (DayOfWeek)(date % 7);
+            _year = year;
+            _month = month;
+            _date = date;
+            _hour = time;
+            _day = (DayOfWeek)(date % 7);
         }
         public void AddTime(int time)
         {
             if (time < 0) { throw new ArgumentOutOfRangeException("time"); }
-            int actual = Hour + time;
-            Hour = actual.Repeat(TimeUtility.DayLength+1);
+            int actual = _hour + time;
+            _hour = actual.Repeat(TimeUtility.DayLength+1);
             if (actual > TimeUtility.DayLength)
             {
                 int dayAmt = actual / TimeUtility.DayLength;                
@@ -53,20 +65,20 @@ namespace GameTime
         public void AddDate(int date)
         {
             if (date < 0) { throw new ArgumentOutOfRangeException("date"); }
-            int actual = Date + date;
-            Date = actual.Repeat(TimeUtility.MonthLength +1);
+            int actual = _date + date;
+            _date = actual.Repeat(TimeUtility.MonthLength +1);
             if (actual >= TimeUtility.MonthLength +1)
             {
                 int monthAmt = actual / TimeUtility.MonthLength;
                 AddMonth(monthAmt);
             }
-            Day = (DayOfWeek)(Date % 7);
+            _day = (DayOfWeek)(_date % 7);
         }
         public void AddMonth(int month)
         {
             if (month < 0) { throw new ArgumentOutOfRangeException("month"); }
-            int actual = Month + month;
-            Month = actual.Repeat(TimeUtility.YearLength + 1);
+            int actual = _month + month;
+            _month = actual.Repeat(TimeUtility.YearLength + 1);
             if (actual >= TimeUtility.YearLength +1)
             {
                 int yearAmt = actual / TimeUtility.YearLength;
@@ -76,24 +88,24 @@ namespace GameTime
         public void AddYear(int year)
         {
             if (year < 0) { throw new ArgumentOutOfRangeException("year"); }
-            Year = Math.Clamp(Year + year, 0, TimeUtility.YearMax);
+            _year = Math.Clamp(_year + year, 0, TimeUtility.YearMax);
         }
 
         public int CompareTime(TimeStruct other)
         {
-            return Hour - other.Hour;
+            return _hour - other._hour;
         }
         public int CompareDays(TimeStruct other)
         {
-            return Date - other.Date;
+            return _date - other._date;
         }
         public int CompareMonths(TimeStruct other)
         {
-            return Month - other.Month;
+            return _month - other._month;
         }
         public int CompareYears(TimeStruct other)
         {
-            return Year - other.Year;
+            return _year - other._year;
         }
         public TimeStruct Compare(TimeStruct other)
         {
@@ -103,24 +115,24 @@ namespace GameTime
         public static TimeStruct operator +(TimeStruct a, TimeStruct b)
         {
             TimeStruct other = new TimeStruct(a);
-            other.AddTime(b.Hour);
-            other.AddDate(b.Date);
-            other.AddMonth(b.Month);
-            other.AddYear(b.Year);
+            other.AddTime(b._hour);
+            other.AddDate(b._date);
+            other.AddMonth(b._month);
+            other.AddYear(b._year);
             return other;
         }
         public static TimeStruct operator -(TimeStruct a, TimeStruct b)
         {
             TimeStruct other = new TimeStruct(a);
-            other.AddTime(-b.Hour);
-            other.AddDate(-b.Date);
-            other.AddMonth(-b.Month);
-            other.AddYear(-b.Year);
+            other.AddTime(-b._hour);
+            other.AddDate(-b._date);
+            other.AddMonth(-b._month);
+            other.AddYear(-b._year);
             return other;
         }
         public override string ToString()
         {
-            return $"{(Month+1):00}/{(Date + 1):00}/{(Year + 1):0000}({Day}) {Hour:00}:00";
+            return $"{(_month+1):00}/{(_date + 1):00}/{(_year + 1):0000}({_day}) {_hour:00}:00";
         }
         
     }

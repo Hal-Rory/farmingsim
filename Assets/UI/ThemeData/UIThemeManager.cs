@@ -15,7 +15,9 @@ public class UIThemeManager
     [SerializeField] private static ScrollRectThemeData _scrollRectThemeData;
     [SerializeField] private static SelectableThemeData _selectableThemeData;
     [SerializeField] private static HighlightThemeData _highlightThemeData;
-    public static bool Valid => _highlightThemeData != null && _labelThemeData != null && _selectableThemeData != null && _panelThemeData!= null && _scrollRectThemeData!= null;
+    [SerializeField] private static HighlightThemeData _activeHighlightThemeData;
+    [SerializeField] private static HighlightThemeData _inactiveHighlightThemeData;
+    public static bool Valid => _activeHighlightThemeData != null && _inactiveHighlightThemeData != null && _highlightThemeData != null && _labelThemeData != null && _selectableThemeData != null && _panelThemeData!= null && _scrollRectThemeData!= null;
     public static string DefaultThemeName => "Theme";
     private static string ThemePath => Path.Combine("Assets", "UI", "ThemeData", "Themes");
     private static string PrefabPath => Path.Combine("Assets", "UI", "Prefabs");
@@ -25,11 +27,13 @@ public class UIThemeManager
     public static ScrollRectThemeData ScrollRectThemeData { get => _scrollRectThemeData; }
     public static SelectableThemeData SelectableThemeData { get => _selectableThemeData; }
     public static HighlightThemeData HighlightThemeData { get => _highlightThemeData; }
+    public static HighlightThemeData ActiveHighlightThemeData { get => _activeHighlightThemeData; }
+    public static HighlightThemeData InactiveHighlightThemeData { get => _inactiveHighlightThemeData; }
 
     public static void UpdateTheme()
     {
 #if UNITY_EDITOR
-        string[] guids = AssetDatabase.FindAssets("", new[] { PrefabPath });
+        string[] guids = AssetDatabase.FindAssets("t:Prefab");
 
         foreach (var guid in guids)
         {            
@@ -42,7 +46,10 @@ public class UIThemeManager
                 {
                     theme.UpdateTheme();
                 }
-                PrefabUtility.SavePrefabAsset(go);
+                if (themes.Count > 0)
+                {
+                    PrefabUtility.SavePrefabAsset(go);
+                }
             }
         }
         ThemedUI[] themedGo = UnityEngine.Object.FindObjectsOfType<ThemedUI>();
@@ -75,148 +82,70 @@ public class UIThemeManager
 #endif
         return false;
     }
-    
+#if UNITY_EDITOR
+    private static string ConstructThemeName(string themeType, string themeName)
+    {
+        return $"{themeType}_{themeName}";
+    }
+    private static void SetupSave<T>(ref T theme, string themeType, string themeName)
+        where T: UIThemeData
+    {
+        if (theme == null)
+        {
+            if (TryFind(ConstructThemeName(themeType, themeName), out T ui))
+            {
+                theme.Copy(ui);
+            }
+            else
+            {
+                theme = ScriptableObject.CreateInstance<T>();
+                AssetDatabase.CreateAsset(theme, $"{ThemePath}/{ConstructThemeName(themeType, themeName)}.asset");
+            }
+        }
+        theme.ID = ConstructThemeName(themeType, themeName);
+        EditorUtility.SetDirty(theme);
+    }
+#endif
     public static void SaveAndOverwriteTheme(string themeName)
     {
 #if UNITY_EDITOR
-        if (_highlightThemeData == null)
-        {
-            if (TryFind($"{nameof(HighlightThemeData)}_{themeName}", out HighlightThemeData ui))
-            {
-                _highlightThemeData.Copy(ui);
-            }
-            else
-            {
-                _highlightThemeData = ScriptableObject.CreateInstance<HighlightThemeData>();
-                AssetDatabase.CreateAsset(_highlightThemeData, $"{ThemePath}/{nameof(HighlightThemeData)}_{themeName}.asset");
-            }
-        }
-        _highlightThemeData.ID = $"{nameof(HighlightThemeData)}_{themeName}";
-        EditorUtility.SetDirty(_highlightThemeData);
-
-        if (_labelThemeData == null)
-        {
-            if (TryFind<LabelThemeData>($"{nameof(LabelThemeData)}_{themeName}", out LabelThemeData ui))
-            {
-                _labelThemeData.Copy(ui);
-            }
-            else
-            {
-                _labelThemeData = ScriptableObject.CreateInstance<LabelThemeData>();
-                AssetDatabase.CreateAsset(_labelThemeData, $"{ThemePath}/{nameof(LabelThemeData)}_{themeName}.asset");
-            }
-        }
-        _labelThemeData.ID = $"{nameof(LabelThemeData)}_{themeName}";
-        EditorUtility.SetDirty(_labelThemeData);
-
-        if (_panelThemeData == null)
-        {
-            if (TryFind($"{nameof(PanelThemeData)}_{themeName}", out PanelThemeData ui))
-            {
-                _panelThemeData.Copy(ui);
-            }
-            else
-            {
-                _panelThemeData = ScriptableObject.CreateInstance<PanelThemeData>();
-                AssetDatabase.CreateAsset(_panelThemeData, $"{ThemePath}/{nameof(PanelThemeData)}_{themeName}.asset");
-            }
-        }
-        _panelThemeData.ID = $"{nameof(PanelThemeData)}_{themeName}";
-        EditorUtility.SetDirty(_panelThemeData);
-                
-        if (_scrollRectThemeData == null)
-        {
-            if (TryFind($"{nameof(ScrollRectThemeData)}_{themeName}", out ScrollRectThemeData ui))
-            {
-                _scrollRectThemeData.Copy(ui);
-            }
-            else
-            {
-                _scrollRectThemeData = ScriptableObject.CreateInstance<ScrollRectThemeData>();
-                AssetDatabase.CreateAsset(_scrollRectThemeData, $"{ThemePath}/{nameof(ScrollRectThemeData)}_{themeName}.asset");
-            }
-        }
-        _scrollRectThemeData.ID = $"{nameof(ScrollRectThemeData)}_{themeName}";
-        EditorUtility.SetDirty(_scrollRectThemeData);
-        
-        if (_selectableThemeData == null)
-        {
-            if (TryFind($"{nameof(SelectableThemeData)}_{themeName}", out SelectableThemeData ui))
-            {
-                _selectableThemeData.Copy(ui);
-            }
-            else
-            {
-                _selectableThemeData = ScriptableObject.CreateInstance<SelectableThemeData>();
-                AssetDatabase.CreateAsset(_selectableThemeData, $"{ThemePath}/{nameof(SelectableThemeData)}_{themeName}.asset");
-            }
-        }
-        _selectableThemeData.ID = $"{nameof(SelectableThemeData)}_{themeName}";
-        EditorUtility.SetDirty(_selectableThemeData);
+        SetupSave(ref _highlightThemeData, nameof(_highlightThemeData), themeName);
+        SetupSave(ref _inactiveHighlightThemeData, nameof(_inactiveHighlightThemeData), themeName);
+        SetupSave(ref _activeHighlightThemeData, nameof(_activeHighlightThemeData), themeName);
+        SetupSave(ref _labelThemeData, nameof(_labelThemeData), themeName);
+        SetupSave(ref _panelThemeData, nameof(_panelThemeData), themeName);       
+        SetupSave(ref _scrollRectThemeData, nameof(_scrollRectThemeData), themeName);       
+        SetupSave(ref _selectableThemeData, nameof(_selectableThemeData), themeName);        
         AssetDatabase.SaveAssets();
 #endif
     }
+#if UNITY_EDITOR
+    private static void SetupLoad<T>(ref T theme, string themeType, string themeName)
+        where T : UIThemeData
+    {
+        if (TryFind(ConstructThemeName(themeType, themeName), out T t))
+        {
+            theme = t;
+        }
+        else
+        {
+            theme = ScriptableObject.CreateInstance<T>();
+            theme.ID = ConstructThemeName(themeType, themeName);
+            AssetDatabase.CreateAsset(theme, $"{ThemePath}/{ConstructThemeName(themeType, themeName)}.asset");
+            AssetDatabase.SaveAssets();
+        }
+    }
+#endif
     public static void LoadOrCreateTheme(string themeName)
     {
-#if UNITY_EDITOR
-        if (TryFind($"{nameof(HighlightThemeData)}_{themeName}", out HighlightThemeData hl))
-        {
-            _highlightThemeData = hl;
-        }
-        else
-        {
-            _highlightThemeData = ScriptableObject.CreateInstance<HighlightThemeData>();
-            _highlightThemeData.ID = $"{nameof(HighlightThemeData)}_{themeName}";
-            AssetDatabase.CreateAsset(_highlightThemeData, $"{ThemePath}/{_highlightThemeData.ID}.asset");
-            AssetDatabase.SaveAssets();
-        }
-
-        if (TryFind($"{nameof(LabelThemeData)}_{themeName}", out LabelThemeData l))
-        {
-            _labelThemeData = l;
-        } else 
-        {
-            _labelThemeData = ScriptableObject.CreateInstance<LabelThemeData>();
-            _labelThemeData.ID = $"{nameof(LabelThemeData)}_{themeName}";
-            AssetDatabase.CreateAsset(_labelThemeData, $"{ThemePath}/{_labelThemeData.ID}.asset");
-            AssetDatabase.SaveAssets();
-        }
-
-        if (TryFind($"{nameof(PanelThemeData)}_{themeName}", out PanelThemeData p))
-        {
-            _panelThemeData = p;
-        }
-        else
-        {
-            _panelThemeData = ScriptableObject.CreateInstance<PanelThemeData>();
-            _panelThemeData.ID = $"{nameof(PanelThemeData)}_{themeName}";
-            AssetDatabase.CreateAsset(_panelThemeData, $"{ThemePath}/{_panelThemeData.ID}.asset");
-            AssetDatabase.SaveAssets();
-        }
-
-        if (TryFind($"{nameof(ScrollRectThemeData)}_{themeName}", out ScrollRectThemeData sr))
-        {
-            _scrollRectThemeData = sr;
-        }
-        else
-        {
-            _scrollRectThemeData = ScriptableObject.CreateInstance<ScrollRectThemeData>();
-            _scrollRectThemeData.ID = $"{nameof(ScrollRectThemeData)}_{themeName}";
-            AssetDatabase.CreateAsset(_scrollRectThemeData, $"{ThemePath}/{_scrollRectThemeData.ID}.asset");
-            AssetDatabase.SaveAssets();
-        }
-
-        if (TryFind($"{nameof(SelectableThemeData)}_{themeName}", out SelectableThemeData sl))
-        {
-            _selectableThemeData = sl;
-        }
-        else
-        {
-            _selectableThemeData = ScriptableObject.CreateInstance<SelectableThemeData>();
-            _selectableThemeData.ID = $"{nameof(SelectableThemeData)}_{themeName}";
-            AssetDatabase.CreateAsset(_selectableThemeData, $"{ThemePath}/{_selectableThemeData.ID}.asset");
-            AssetDatabase.SaveAssets();
-        }
+#if UNITY_EDITOR        
+        SetupLoad(ref _highlightThemeData, nameof(_highlightThemeData), themeName);
+        SetupLoad(ref _inactiveHighlightThemeData, nameof(_inactiveHighlightThemeData), themeName);
+        SetupLoad(ref _activeHighlightThemeData, nameof(_activeHighlightThemeData), themeName);
+        SetupLoad(ref _labelThemeData, nameof(_labelThemeData), themeName);
+        SetupLoad(ref _panelThemeData, nameof(_panelThemeData), themeName);
+        SetupLoad(ref _scrollRectThemeData, nameof(_scrollRectThemeData), themeName);
+        SetupLoad(ref _selectableThemeData, nameof(_selectableThemeData), themeName);
 #endif
     }
 }

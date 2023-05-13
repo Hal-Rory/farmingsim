@@ -1,11 +1,6 @@
-using Farm.Field;
 using GameTime;
 using Items;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
 {
@@ -14,7 +9,7 @@ public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
     protected abstract void ValidateProp();
 
     #region TimeListener
-    public abstract void ClockUpdate(TimeStruct timestamp);
+    public abstract void ClockUpdate(int tick);
     public virtual void Register()
     {
         ITimeManager.Instance.RegisterListener(this);
