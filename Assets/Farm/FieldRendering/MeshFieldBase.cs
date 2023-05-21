@@ -23,21 +23,21 @@ public class MeshFieldBase : MonoBehaviour, IFieldRenderer
         CropRenderer.SetCropState(crop);
     }
 
-    public void SetFieldState(IField.FieldState state)
+    public void SetFieldState(FieldState state)
     {
         Material[] mats = new Material[Renderer.sharedMaterials.Length];
         Renderer.sharedMaterials.CopyTo(mats, 0);
         switch (state)
         {
-            case IField.FieldState.untilled:
+            case FieldState.untilled:
                 mats[1] = UntilledMat;
                 break;
-            case IField.FieldState.tilled_crop:
-            case IField.FieldState.tilled:
+            case FieldState.tilled_crop:
+            case FieldState.tilled:
                 mats[1] = TilledMat;
                 break;
-            case IField.FieldState.watered_crop:
-            case IField.FieldState.watered_tilled:
+            case FieldState.watered_crop:
+            case FieldState.watered_tilled:
                 mats[1] = TilledWateredMat;
                 break;
         }

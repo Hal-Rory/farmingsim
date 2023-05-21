@@ -5,7 +5,8 @@ using UnityEngine.Assertions;
 
 namespace Farm.Field
 {
-    public class SeedPlot : PropItem, IField, ITimeListener, ISelectable
+    public enum FieldState { untilled, tilled, tilled_crop, watered_tilled, watered_crop };
+    public class Field : PropItem, ITimeListener
     {
         [Tooltip("In hours, how long does it take for the till state to decay")]
         [SerializeField] private int TillDecayMax = 1;
@@ -15,7 +16,7 @@ namespace Farm.Field
         private int WaterDecay = 0;
         private Crop Current;
         [SerializeField] private ParticleSystem Particles;
-        [SerializeField] private MeshFieldBase FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
+        [SerializeField] private IFieldRenderer FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
         public long TimeNeeded => Current.TimeNeeded;
         private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
         public float GrowthLevel
@@ -44,13 +45,14 @@ namespace Farm.Field
         }
         private void Start()
         {
-            SetState(IField.FieldState.untilled);
+            SetState(FieldState.untilled);
         }
         protected override void ValidateProp()
         {
+            FieldRenderer = GetComponentInChildren<IFieldRenderer>();
             Assert.IsNotNull(FieldRenderer, "Missing Field Renderer");
         }
-        protected void SetState(IField.FieldState state)
+        protected void SetState(FieldState state)
         {
             State = state;
             SetFieldRenderer();
@@ -62,37 +64,8 @@ namespace Farm.Field
         protected void SetCropRenderer(ICropRender render)
         {                        
             FieldRenderer.SetCropState(render);
-        }
-        #region ISelectable
-        public override void OnDeselect()
-        {
-        }
-
-        public override void OnEndHover()
-        {
-            
-        }
-
-        public override void OnSelect()
-        {
-            Interact();
-        }
-
-        public override void OnStartHover()
-        {
-            
-        }
-
-        public override void WhileHovering()
-        {
-            
-        }
-
-        public override void WhileSelected()
-        {
-        }
-        #endregion
-        #region ITimeListener        
+        }        
+        #region ITimeListener
         public override void ClockUpdate(int tick)
         {
             if (WaterDecay > 0)
@@ -106,12 +79,12 @@ namespace Farm.Field
             {
                 SetWater(false);                
             }
-            if (!HasCrop() && State == IField.FieldState.tilled && TillDecay > 0)
+            if (!HasCrop() && State == FieldState.tilled && TillDecay > 0)
             {
                 TillDecay-= tick;                
                 if(TillDecay <= 0 && WaterDecay == 0)
                 {
-                    SetState(IField.FieldState.untilled);
+                    SetState(FieldState.untilled);
                 }
             }
             else if (HasCrop())
@@ -129,8 +102,8 @@ namespace Farm.Field
             }
         }
         #endregion
-        #region IField       
-        public IField.FieldState State { get; private set; }
+        #region Field Related
+        public FieldState State { get; private set; }
         private int LastWaterLevel;
         public float WaterLevel { get; private set; }
 
@@ -138,18 +111,18 @@ namespace Farm.Field
         {
             return Current != null;
         }
-        public override void Interact()
+        public override void Interact(TOOL_TYPE tool)
         {
-            switch (FarmManager.GetCurrentToolType())
+            switch (tool)
             {
                 case TOOL_TYPE.Water:
-                    if (State != IField.FieldState.untilled)
+                    if (State != FieldState.untilled)
                     {
                         SetWater(true);
                     }
                     break;
                 case TOOL_TYPE.Dig:
-                    if (State == IField.FieldState.untilled)
+                    if (State == FieldState.untilled)
                     {
                         Till();
                     } else if (HasCrop())
@@ -168,6 +141,12 @@ namespace Farm.Field
                     break;
             }            
         }
+        #endregion
+        #region State Changes Helpers
+        /// <summary>
+        /// Try to harvest crop and reset plot state
+        /// </summary>
+        /// <returns></returns>
         private bool TryHarvest()
         {
             if (!(HasCrop() && Current.CanHarvest())) return false;
@@ -176,8 +155,6 @@ namespace Farm.Field
             EmptyPlot();
             return true;
         }
-        #endregion
-
         private void EmptyPlot()
         {
             if(Particles.isPlaying)
@@ -185,8 +162,8 @@ namespace Farm.Field
             Current = null;
             SetCropRenderer(null);
             TillDecay = TillDecayMax;
-            if(State == IField.FieldState.watered_crop) SetState(IField.FieldState.watered_tilled);
-            if(State == IField.FieldState.tilled_crop) SetState(IField.FieldState.tilled);
+            if(State == FieldState.watered_crop) SetState(FieldState.watered_tilled);
+            if(State == FieldState.tilled_crop) SetState(FieldState.tilled);
         }
         /// <summary>
         /// Called when we interact with a tilled tile and we have crops to plant.
@@ -194,15 +171,15 @@ namespace Farm.Field
         /// <param name="item"></param>
         public bool PlantNewCrop(ItemData item)
         {
-            if (!(State == IField.FieldState.tilled || State == IField.FieldState.watered_tilled) || HasCrop() || item is not SeedData seed)
+            if (!(State == FieldState.tilled || State == FieldState.watered_tilled) || HasCrop() || item is not SeedData seed)
                 return false;
             if (GameManager.Instance.RemoveItem(item, 1))
             {
                 Current = new Crop(seed);
                 Current.Plant(seed, ITimeManager.Instance.CurrentTime);
                 SetCropRenderer(Current.UpdateCropSprite(0));
-                if (State == IField.FieldState.watered_tilled) SetState(IField.FieldState.watered_crop);
-                if (State == IField.FieldState.tilled) SetState(IField.FieldState.tilled_crop);
+                if (State == FieldState.watered_tilled) SetState(FieldState.watered_crop);
+                if (State == FieldState.tilled) SetState(FieldState.tilled_crop);
                 return true;
             }
             return false;
@@ -213,9 +190,9 @@ namespace Farm.Field
         /// </summary>
         protected void Till()
         {
-            if (State == IField.FieldState.untilled)
+            if (State == FieldState.untilled)
             {
-                SetState(IField.FieldState.tilled);
+                SetState(FieldState.tilled);
                 TillDecay = TillDecayMax;
             }
         }
@@ -227,13 +204,13 @@ namespace Farm.Field
         {
             if (watered)
             {
-                if (State == IField.FieldState.tilled_crop)
+                if (State == FieldState.tilled_crop)
                 {
-                    SetState(IField.FieldState.watered_crop);
+                    SetState(FieldState.watered_crop);
                 }
-                else if (State == IField.FieldState.tilled)
+                else if (State == FieldState.tilled)
                 {
-                    SetState(IField.FieldState.watered_tilled);
+                    SetState(FieldState.watered_tilled);
                 }
                 IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
                 if (farmTool != null)
@@ -244,16 +221,17 @@ namespace Farm.Field
                 }
             } else
             {
-                if (State == IField.FieldState.watered_crop)
+                if (State == FieldState.watered_crop)
                 {
-                    SetState(IField.FieldState.tilled_crop);
+                    SetState(FieldState.tilled_crop);
                 }
-                else if (State == IField.FieldState.watered_tilled)
+                else if (State == FieldState.watered_tilled)
                 {
-                    SetState(IField.FieldState.tilled);
+                    SetState(FieldState.tilled);
                 }
                 WaterLevel = 0;
             }
         }
+        #endregion
     }
 }

@@ -7,7 +7,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     [SerializeField] private MeshFilter Mesh;
     private Vector3 StartingLocalPosition;
     [SerializeField] private bool UpdateInEditor;
-    [SerializeField] private TOOL_TYPE Type;
+    [SerializeField] private IFarmToolCollection Tool;
     [SerializeField] private Animator Animation;
     private bool CanAnimate;
     private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
@@ -27,28 +27,69 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
             }
         }
     }
-
     private void Awake()
     {
-        StartingLocalPosition= transform.localPosition;        
+        StartingLocalPosition = transform.localPosition;
     }
 
-    public void Register()
+    private void Start()
     {
-        FarmManager.RegisterListener(SetToolRender);
-        GameManager.Instance.InputManager.RegisterPrimaryInteractionListener(DoPrimaryInteraction);
-        GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(DoSwapTool);
-        GameManager.Instance.Selection.OnHoveredChanged += DoHoveredChanged;
+        IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
+        if (farmTool != null)
+        {
+            SetToolRender(farmTool);
+        }
+        Register();
     }
 
-    public void Unregister()
+    private void OnDestroy()
     {
-        FarmManager.UnregisterListener(SetToolRender);
-        GameManager.Instance.InputManager.UnregisterPrimaryInteractionListener(DoPrimaryInteraction);
-        GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(DoSwapTool);
-        GameManager.Instance.Selection.OnHoveredChanged -= DoHoveredChanged;
+        Unregister();
+    }
+    
+    #region Event Listeners
+    private void DoHoveredChanged(ISelectable prev, ISelectable next)
+    {
+        if (next == null || prev != next)
+        {
+            Animate(false);
+        }
+        if (next != null)
+        {
+            transform.position = next.SelectableObject.transform.TransformPoint(next.HoverPoint); //todo: make this an axis, not a point?
+            CanAnimate = true;
+        }
+        else if (CanAnimate)
+        {
+            Animate(false);
+            CanAnimate = false;
+            transform.localPosition = StartingLocalPosition;
+        }
     }
 
+    public void DoSwapTool(bool interact)
+    {
+        if (interact)
+        {
+            SwapTool(FarmManager.NextTool());
+        }
+    }
+
+    private void DoPrimaryInteraction(bool interact)
+    {
+        if (interact)
+        {
+            PlayAnimation(true);
+        }
+    }
+    
+    private void DoSetToolRender(IFarmToolCollection collection)
+    {
+        SetToolRender(collection);
+    }
+    #endregion
+
+    #region Animations and Events
     private void PlayAnimation(bool interact)
     {
         if (interact)
@@ -56,6 +97,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
             Animate();
         }
     }
+
     private void Animate(bool play = true)
     {
         if(!(play && CanAnimate))
@@ -64,7 +106,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
             return;
         }
         Animation.SetBool("idle", false);
-        switch (FarmManager.GetCurrentToolType())
+        switch (Tool.Data.ToolType)
         {
             case TOOL_TYPE.Dig:
                 Animation.Play("Dig");
@@ -80,89 +122,60 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
                 break;            
         }
     }
-
+    /// <summary>
+    /// Used by animation to interact at appropriate time
+    /// </summary>
     public void InteractWithHovered()
     {
-        if (GameManager.Instance.Selection.HoverValidated)
+        if (GameManager.Instance.Selection.HoverValidated && GameManager.Instance.Selection.Hovered is PropItem prop)
         {
-            GameManager.Instance.Selection.Hovered.OnSelect();
+            prop.Interact(Tool.Data.ToolType);
         }
     }
-    private void DoPrimaryInteraction(bool interact)
-    {
-        if (interact)
-        {
-            PlayAnimation(true);
-        }
-    }
-    private void DoHoveredChanged(ISelectable prev, ISelectable next)
-    {
-        if(next == null || prev != next)
-        {
-            Animate(false);
-        }
-        if(next != null)
-        {
-            transform.position = next.SelectableObject.transform.TransformPoint(next.HoverPoint); //todo: make this an axis, not a point?
-            CanAnimate = true;
-        }
-        else if (CanAnimate)
-        {
-            Animate(false);
-            CanAnimate = false;
-            transform.localPosition = StartingLocalPosition;
-        }
-    }
-    private void Start()
-    {
-        IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
-        if (farmTool != null)
-        {
-            SetToolRender(farmTool);
-        }
-        Register();
-    }
-    private void OnDestroy()
-    {
-        Unregister();
-    }
-    
-    private void SetRendererAndMesh(MeshFarmToolCollection farmTool)
-    {
-        //debug due to odd models
-        switch (farmTool.Data.ToolType)
-        {
-            case TOOL_TYPE.Hands:
-            case TOOL_TYPE.Dig:            
-                Renderer.transform.localScale = new Vector3(-50, 50, 50);
-                break;
-            case TOOL_TYPE.Cut:
-            case TOOL_TYPE.Water:
-                Renderer.transform.localScale = new Vector3(-20, 20, 20);
-                break;
-        }
+    #endregion
 
-        Renderer.sharedMaterials = farmTool.RendererSet.Materials;
-        Mesh.sharedMesh = farmTool.RendererSet.Mesh;
+    #region IFarmTool
+    public void Register()
+    {
+        FarmManager.RegisterListener(DoSetToolRender);
+        GameManager.Instance.InputManager.RegisterPrimaryInteractionListener(DoPrimaryInteraction);
+        GameManager.Instance.InputManager.RegisterSecondaryInteractionListener(DoSwapTool);
+        GameManager.Instance.Selection.OnHoveredChanged += DoHoveredChanged;
     }
 
+    public void Unregister()
+    {
+        FarmManager.UnregisterListener(DoSetToolRender);
+        GameManager.Instance.InputManager.UnregisterPrimaryInteractionListener(DoPrimaryInteraction);
+        GameManager.Instance.InputManager.UnregisterSecondaryInteractionListener(DoSwapTool);
+        GameManager.Instance.Selection.OnHoveredChanged -= DoHoveredChanged;
+    }
     public void SetToolRender(IFarmToolCollection collection)
     {
         Animate(false);
         if (collection is MeshFarmToolCollection farmTool)
-        {            
-            SetRendererAndMesh(farmTool);
-        }
-    }
-    public void DoSwapTool(bool interact)
-    {
-        if(interact)
-        {            
-            SwapTool(FarmManager.NextTool());
+        {
+            Tool = farmTool;
+            //debug due to odd models
+            switch (farmTool.Data.ToolType)
+            {
+                case TOOL_TYPE.Hands:
+                case TOOL_TYPE.Dig:
+                    Renderer.transform.localScale = new Vector3(-50, 50, 50);
+                    break;
+                case TOOL_TYPE.Cut:
+                case TOOL_TYPE.Water:
+                    Renderer.transform.localScale = new Vector3(-20, 20, 20);
+                    break;
+            }
+
+            Renderer.sharedMaterials = farmTool.RendererSet.Materials;
+            Mesh.sharedMesh = farmTool.RendererSet.Mesh;
         }
     }
     public void SwapTool(TOOL_TYPE tool)
     {
         FarmManager.TrySwapTool(tool);
     }
+    #endregion
 }

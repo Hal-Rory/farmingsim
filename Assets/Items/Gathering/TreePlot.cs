@@ -1,3 +1,4 @@
+using Items;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -24,11 +25,11 @@ public class TreePlot : PropItem, IDamageable
     {
         Assert.IsNotNull(ItemReturned.Data, $"No item given to {nameof(BushPlot)}: {name}");
     }
-    public override void Interact()
+    public override void Interact(TOOL_TYPE tool)
     {
-        if (FarmManager.GetCurrentToolType() == ToolNeeded && IsDone && IsAlive)
+        if (tool == ToolNeeded && IsDone && IsAlive)
         {
-            TakeDamage(FarmManager.GetCurrentTool().Data.Attack);
+            //TakeDamage(FarmManager.GetTool(tool).Data.Attack);
             if (!IsAlive)
             {
                 GameManager.Instance.AddItem(ItemReturned.Data, ItemReturned.Amount);
@@ -43,32 +44,6 @@ public class TreePlot : PropItem, IDamageable
             GrowthTick+= tick;
             IsDone = GrowthTick >= GrowthTickMax;
         }
-    }
-    #endregion
-    #region Selectable
-    public override void OnDeselect()
-    {
-    }
-
-    public override void OnEndHover()
-    {
-    }
-
-    public override void OnSelect()
-    {
-        Interact();
-    }
-
-    public override void OnStartHover()
-    {
-    }
-
-    public override void WhileHovering()
-    {
-    }
-
-    public override void WhileSelected()
-    {
     }
     #endregion
     #region Damageable

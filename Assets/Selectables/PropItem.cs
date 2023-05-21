@@ -7,6 +7,7 @@ public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
     public TOOL_TYPE ToolNeeded = TOOL_TYPE.None;
 
     protected abstract void ValidateProp();
+    public abstract void Interact(TOOL_TYPE tool);
 
     #region TimeListener
     public abstract void ClockUpdate(int tick);
@@ -28,17 +29,19 @@ public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
     {
         Gizmos.DrawSphere(transform.TransformPoint(HoverPoint), .1f);
     }
-    public abstract void OnDeselect();
+    public virtual void OnDeselect() { }
 
-    public abstract void OnEndHover();
+    public virtual void OnEndHover() { }
 
-    public abstract void OnSelect();
+    public virtual void OnSelect() { }
 
-    public abstract void OnStartHover();
+    public virtual void OnStartHover() { 
+        Debug.Log("hovering");
+    }
 
-    public abstract void WhileHovering();
+    public virtual void WhileHovering() { }
 
-    public abstract void WhileSelected();
+    public virtual void WhileSelected() { }
     #endregion
-    public abstract void Interact();
+
 }

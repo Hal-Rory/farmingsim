@@ -5,7 +5,7 @@ public class FieldStatusUI : UIPage
 {
     public Card DisplayCard;
     public Slider DisplaySlider;
-    private SeedPlot Target;
+    private Field Target;
     private bool DisplaySet;
     protected override void Start()
     {
@@ -14,7 +14,7 @@ public class FieldStatusUI : UIPage
     }
     public void Update()
     {
-        if (GameManager.Instance.Selection.TryGetCurrentHovered(out ISelectable selectable) && selectable is SeedPlot field)
+        if (GameManager.Instance.Selection.TryGetCurrentHovered(out ISelectable selectable) && selectable is Field field)
         {
             Target= field;
             if (!DisplayCard.gameObject.activeSelf)

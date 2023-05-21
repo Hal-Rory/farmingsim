@@ -46,16 +46,6 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
         return null;
     }
 
-    public string GetCurrentToolName()
-    {
-        IFarmToolCollection tool = GetCurrentTool();
-        return tool != null ? tool.Data.Name : string.Empty;
-    }
-    public TOOL_TYPE GetCurrentToolType()
-    {
-        IFarmToolCollection tool = GetCurrentTool();
-        return tool != null ? tool.Data.ToolType : TOOL_TYPE.None;
-    }
     public void TrySwapTool(TOOL_TYPE type)
     {
         HashSet<Item> tools = new HashSet<Item>(GameManager.Instance.GetAllTools());
@@ -67,6 +57,7 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
             }
         }
     }
+
     public TOOL_TYPE NextTool()
     {        
         return ((ToolData)GameManager.Instance.GetNextToolbelt()?.Data).ToolType;
@@ -87,19 +78,5 @@ public class FarmToolStateManager3D : MonoBehaviour, IFarmToolStateManager
         {
             yield return FarmToolCollection.Find(x => x.Data.ID == item.Data.ID);
         }        
-    }
-
-    protected bool TryGetTool(string toolID, out IFarmToolCollection collection)
-    {
-        collection = null;
-        foreach (var item in FarmToolCollection)
-        {
-            if (item.Data.ID == toolID)
-            {
-                collection = item;
-                return true;
-            }
-        }
-        return false;
     }
 }

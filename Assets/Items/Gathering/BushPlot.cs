@@ -1,4 +1,5 @@
 using GameTime;
+using Items;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -35,40 +36,15 @@ public class BushPlot : PropItem, ITimeListener
         }
     }
     #endregion
-    #region Selectable
-    public override void Interact()
+    #region PropItem
+    public override void Interact(TOOL_TYPE tool)
     {
-        if(FarmManager.GetCurrentToolType() == ToolNeeded && IsDone)
+        if(tool == ToolNeeded && IsDone)
         {
             GameManager.Instance.AddItem(ItemReturned.Data, ItemReturned.Amount);
             GrowthTick = GrowthTickMax;
             IsDone= false;
         }
-    }
-
-    public override void OnDeselect()
-    {
-    }
-
-    public override void OnEndHover()
-    {
-    }
-
-    public override void OnSelect()
-    {
-        Interact();
-    }
-
-    public override void OnStartHover()
-    {
-    }
-
-    public override void WhileHovering()
-    {
-    }
-
-    public override void WhileSelected()
-    {
     }
     #endregion
 }
