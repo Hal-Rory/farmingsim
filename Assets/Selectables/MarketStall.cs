@@ -1,4 +1,5 @@
 using UnityEngine;
+using static ISelectable;
 
 public class MarketStall : MonoBehaviour, ISelectable
 {

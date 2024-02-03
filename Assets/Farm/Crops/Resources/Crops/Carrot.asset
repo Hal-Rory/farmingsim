@@ -16,38 +16,33 @@ MonoBehaviour:
   Description: 
   Display: {fileID: 21300000, guid: d9c9c5ff48242504a9d1d82293056097, type: 3}
   <ID>k__BackingField: ct0
-  Cap: 1
   Rank: 0
   Sellable: 1
+  <SelectableType>k__BackingField: 1
   PurchasePrice: 2
   SellPrice: 3
   GrowthProgressRenders:
-  - Set:
-      Mesh: {fileID: -9018676019957116846, guid: a4cc117899b95aa42ac8aae2c0b5079f, type: 3}
-      Materials:
-      - {fileID: -2505642851634945670, guid: a4cc117899b95aa42ac8aae2c0b5079f, type: 3}
-  - Set:
-      Mesh: {fileID: -1268716654392877461, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
-      Materials:
-      - {fileID: -5674820151333345596, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
-      - {fileID: -2505642851634945670, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
-  - Set:
-      Mesh: {fileID: 6410317893199399958, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
-      Materials:
-      - {fileID: -5674820151333345596, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
-      - {fileID: -2505642851634945670, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
+  - <Display>k__BackingField: {fileID: -9018676019957116846, guid: a4cc117899b95aa42ac8aae2c0b5079f, type: 3}
+    <Materials>k__BackingField:
+    - {fileID: -2505642851634945670, guid: a4cc117899b95aa42ac8aae2c0b5079f, type: 3}
+  - <Display>k__BackingField: {fileID: -1268716654392877461, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
+    <Materials>k__BackingField:
+    - {fileID: -2505642851634945670, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
+    - {fileID: -5674820151333345596, guid: 368cf5e22f3792f4ca379225921c865f, type: 3}
+  - <Display>k__BackingField: {fileID: 6410317893199399958, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
+    <Materials>k__BackingField:
+    - {fileID: -2505642851634945670, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
+    - {fileID: -5674820151333345596, guid: 43767aad33e6e454088514e6f0a32589, type: 3}
   ReadyToHarvestRender:
-    Set:
-      Mesh: {fileID: 8611385169447972340, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
-      Materials:
-      - {fileID: -5674820151333345596, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
-      - {fileID: -2505642851634945670, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
-      - {fileID: -3140437135712997877, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
+    <Display>k__BackingField: {fileID: 8611385169447972340, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
+    <Materials>k__BackingField:
+    - {fileID: -3140437135712997877, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
+    - {fileID: -2505642851634945670, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
+    - {fileID: -5674820151333345596, guid: 1ceb892babfe24540b5707dccf78f422, type: 3}
   DeadCropRender:
-    Set:
-      Mesh: {fileID: 4134353514570314643, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
-      Materials:
-      - {fileID: 5719615456868549548, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
+    <Display>k__BackingField: {fileID: -832753159551579213, guid: cb9935f4f9713cc49aa1d1caea8cfea2, type: 3}
+    <Materials>k__BackingField:
+    - {fileID: -7805457775891230367, guid: 1e2a85410462ea74889894e6cb1071c2, type: 3}
   WaterDelta: 1.5
   HoursNeeded: 0
   DaysNeeded: 2

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 public interface ISelectable
 {
+    public enum SELECTABLE_TYPE { none, item, tool, prop, npc, weapon, currency };
     SELECTABLE_TYPE Type { get; }
     public bool SelectableBySelector { get;}
     GameObject SelectableObject { get; }

@@ -1,4 +1,6 @@
 using UnityEngine;
+using static ISelectable;
+
 namespace Items
 {
     [CreateAssetMenu(fileName = "New Item", menuName = "Create New Item")]

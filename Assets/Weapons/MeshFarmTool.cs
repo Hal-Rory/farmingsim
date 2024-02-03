@@ -129,7 +129,7 @@ public class MeshFarmTool : MonoBehaviour, IFarmTool
     {
         if (GameManager.Instance.Selection.HoverValidated && GameManager.Instance.Selection.Hovered is PropItem prop)
         {
-            prop.Interact(Tool.Data.ToolType);
+            prop.Interact(Tool);
         }
     }
     #endregion

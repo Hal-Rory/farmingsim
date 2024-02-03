@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-public enum SELECTABLE_TYPE { none, item, tool, prop, npc, weapon, currency };
 [Serializable]
 public class Selector
 {

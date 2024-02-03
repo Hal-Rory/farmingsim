@@ -16,39 +16,18 @@ MonoBehaviour:
   Description: 
   Display: {fileID: -765725215, guid: 5ff3b4faac463d94c9e590c037fddbb9, type: 3}
   <ID>k__BackingField: tm0
-  Cap: 1
   Rank: 0
   Sellable: 1
+  <SelectableType>k__BackingField: 1
   PurchasePrice: 5
   SellPrice: 7
   GrowthProgressRenders:
-  - Set:
-      Mesh: {fileID: 4003943623372864745, guid: 547cd5acaf164bc4a9cf1f113fd8c77b, type: 3}
-      Materials:
-      - {fileID: -2505642851634945670, guid: 547cd5acaf164bc4a9cf1f113fd8c77b, type: 3}
-  - Set:
-      Mesh: {fileID: 4924459882607634458, guid: acc1f4ee5ce52974c9eceee5a73209c4, type: 3}
-      Materials:
-      - {fileID: -2505642851634945670, guid: acc1f4ee5ce52974c9eceee5a73209c4, type: 3}
-  - Set:
-      Mesh: {fileID: -6090267276369714656, guid: 034327bf5327e3a45ba253e26c8b514e, type: 3}
-      Materials:
-      - {fileID: -2505642851634945670, guid: 034327bf5327e3a45ba253e26c8b514e, type: 3}
-  - Set:
-      Mesh: {fileID: -7865970766409841208, guid: abf2592c6e654fb45aa7b7781fc7b437, type: 3}
-      Materials:
-      - {fileID: -382652638819485698, guid: abf2592c6e654fb45aa7b7781fc7b437, type: 3}
-      - {fileID: -8753481769234136891, guid: a056591445cdf9144afa784a8522af47, type: 3}
-  ReadyToHarvestRender:
-    Set:
-      Mesh: {fileID: 2546815751545613189, guid: 387d40ef433a9774f9c9ba442551ebcd, type: 3}
-      Materials:
-      - {fileID: -2505642851634945670, guid: 387d40ef433a9774f9c9ba442551ebcd, type: 3}
-  DeadCropRender:
-    Set:
-      Mesh: {fileID: 4134353514570314643, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
-      Materials:
-      - {fileID: 5719615456868549548, guid: 7ba6cbee0fca26a4fbd0ef3851e4bc9f, type: 3}
+  - Tomato_1
+  - Tomato_2
+  - Tomato_3
+  - Tomato_harvested
+  ReadyToHarvestRender: Tomato_4
+  DeadCropRender: Grass_4
   WaterDelta: 2
   HoursNeeded: 0
   DaysNeeded: 4

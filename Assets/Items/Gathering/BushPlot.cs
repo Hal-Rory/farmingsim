@@ -37,9 +37,10 @@ public class BushPlot : PropItem, ITimeListener
     }
     #endregion
     #region PropItem
-    public override void Interact(TOOL_TYPE tool)
+    public override void Interact(IFarmToolCollection farmTool)
     {
-        if(tool == ToolNeeded && IsDone)
+        TOOL_TYPE tool = farmTool.Data.ToolType;
+        if (tool == ToolNeeded && IsDone)
         {
             GameManager.Instance.AddItem(ItemReturned.Data, ItemReturned.Amount);
             GrowthTick = GrowthTickMax;

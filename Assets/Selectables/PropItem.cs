@@ -1,13 +1,14 @@
 using GameTime;
 using Items;
 using UnityEngine;
+using static ISelectable;
 
 public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
 {
     public TOOL_TYPE ToolNeeded = TOOL_TYPE.None;
 
     protected abstract void ValidateProp();
-    public abstract void Interact(TOOL_TYPE tool);
+    public abstract void Interact(IFarmToolCollection farmTool);
 
     #region TimeListener
     public abstract void ClockUpdate(int tick);
@@ -36,7 +37,6 @@ public abstract class PropItem : MonoBehaviour, ISelectable, ITimeListener
     public virtual void OnSelect() { }
 
     public virtual void OnStartHover() { 
-        Debug.Log("hovering");
     }
 
     public virtual void WhileHovering() { }

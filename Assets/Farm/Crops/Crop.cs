@@ -1,6 +1,7 @@
 using GameTime;
 using Items;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 public class Crop
@@ -9,8 +10,10 @@ public class Crop
     private float WaterLevel;
     public static event UnityAction<SeedData> OnPlantCrop;
     public static event UnityAction<SeedData> OnHarvestCrop;
-    public event UnityAction<ICropRender> OnStateUpdate;
-    public long TimeNeeded {get; private set; }
+    private List<ICropRender> GrowthProgressRenders;
+    private ICropRender ReadyToHarvestRender;
+    private ICropRender DeadCropRender;
+    public long TimeNeeded {get; private set;}
     private long CurrentTime;
     public bool IsAlive { get; private set; }
     private static float WaterMax => 100;
@@ -21,6 +24,14 @@ public class Crop
     {
         Current = current;
         TimeNeeded = Current.HoursNeeded + TimeUtility.DaysToHours(Current.DaysNeeded) + TimeUtility.MonthsToHours(Current.MonthsNeeded) + TimeUtility.YearsToHours(Current.YearsNeeded);
+        GrowthProgressRenders = new List<ICropRender>();
+        for (int i = 0; i < Current.GrowthProgressRenders.Length; i++)
+        {
+            ICropRender render = CropObjectManager.GetCrop(Current.GrowthProgressRenders[i]).GetComponent<ICropRender>();
+            if (render is not ICropRender)
+                return;
+            GrowthProgressRenders.Add(render);
+        }
     }
 
     public ObjData CropStats()
@@ -67,14 +78,14 @@ public class Crop
             Debug.LogWarning("No sprites, returning null");
             return null;
         }
-        return Current.GrowthProgressRenders[Math.Clamp(index, 0, Current.GrowthProgressRenders.Length - 1)];
+        return GrowthProgressRenders[Math.Clamp(index, 0, Current.GrowthProgressRenders.Length - 1)];
     }
     /// <summary>
     /// Called when the crop has progressed.
     /// </summary>
     public ICropRender UpdateCropSprite()
     {
-        if(!IsAlive) return Current.DeadCropRender;        
+        if(!IsAlive) return DeadCropRender;        
         if (!CanHarvest())
         {
             if (Current.GrowthProgressRenders.Length == 0)
@@ -86,7 +97,7 @@ public class Crop
             return UpdateCropSprite(index);
         } else 
         {
-            return Current.ReadyToHarvestRender;
+            return ReadyToHarvestRender;
         }        
     }
 

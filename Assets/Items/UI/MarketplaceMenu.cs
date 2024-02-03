@@ -2,6 +2,7 @@ using Items;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static ISelectable;
 
 public class MarketplaceMenu : UIPage
 {

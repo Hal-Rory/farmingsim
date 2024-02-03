@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 namespace Farm.Field
 {
     public enum FieldState { untilled, tilled, tilled_crop, watered_tilled, watered_crop };
-    public class Field : PropItem, ITimeListener
+    public class Field : PropItem
     {
         [Tooltip("In hours, how long does it take for the till state to decay")]
         [SerializeField] private int TillDecayMax = 1;
@@ -18,7 +18,6 @@ namespace Farm.Field
         [SerializeField] private ParticleSystem Particles;
         [SerializeField] private IFieldRenderer FieldRenderer; //todo: swap with IFieldRenderer for 2D/3D swapping
         public long TimeNeeded => Current.TimeNeeded;
-        private IFarmToolStateManager FarmManager => GameManager.Instance.FarmToolManager;
         public float GrowthLevel
         {
             get
@@ -111,8 +110,9 @@ namespace Farm.Field
         {
             return Current != null;
         }
-        public override void Interact(TOOL_TYPE tool)
+        public override void Interact(IFarmToolCollection farmTool)
         {
+            TOOL_TYPE tool = farmTool.Data.ToolType;
             switch (tool)
             {
                 case TOOL_TYPE.Water:
@@ -135,7 +135,7 @@ namespace Farm.Field
                     break;
                 case TOOL_TYPE.Hands:
                     if (!TryHarvest())
-                        if(!PlantNewCrop(GameManager.Instance.GetItem().Data)){
+                        if(!PlantNewCrop(GameInventory.Instance.Get().Data)){
                             //shake or glow or something
                         }
                     break;
@@ -173,7 +173,7 @@ namespace Farm.Field
         {
             if (!(State == FieldState.tilled || State == FieldState.watered_tilled) || HasCrop() || item is not SeedData seed)
                 return false;
-            if (GameManager.Instance.RemoveItem(item, 1))
+            if (GameInventory.Instance.RemoveItem(item, 1))
             {
                 Current = new Crop(seed);
                 Current.Plant(seed, ITimeManager.Instance.CurrentTime);
@@ -200,7 +200,7 @@ namespace Farm.Field
         /// <summary>
         /// Called when we interact with a crop tile.
         /// </summary>
-        protected void SetWater(bool watered)
+        protected void SetWater(bool watered, IFarmToolCollection farmTool = null)
         {
             if (watered)
             {
@@ -212,7 +212,6 @@ namespace Farm.Field
                 {
                     SetState(FieldState.watered_tilled);
                 }
-                IFarmToolCollection farmTool = FarmManager.GetCurrentTool();
                 if (farmTool != null)
                 {
                     WaterDecay += Mathf.CeilToInt(Mathf.Clamp(farmTool.Data.Attack, 1, farmTool.Data.Attack));

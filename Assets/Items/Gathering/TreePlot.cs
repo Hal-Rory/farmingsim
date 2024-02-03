@@ -25,8 +25,9 @@ public class TreePlot : PropItem, IDamageable
     {
         Assert.IsNotNull(ItemReturned.Data, $"No item given to {nameof(BushPlot)}: {name}");
     }
-    public override void Interact(TOOL_TYPE tool)
+    public override void Interact(IFarmToolCollection farmTool)
     {
+        TOOL_TYPE tool = farmTool.Data.ToolType;
         if (tool == ToolNeeded && IsDone && IsAlive)
         {
             //TakeDamage(FarmManager.GetTool(tool).Data.Attack);

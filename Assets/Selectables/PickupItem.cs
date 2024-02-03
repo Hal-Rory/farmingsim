@@ -1,4 +1,6 @@
 using UnityEngine;
+using static ISelectable;
+
 namespace Items
 {
     public class PickupItem : MonoBehaviour, ISelectable

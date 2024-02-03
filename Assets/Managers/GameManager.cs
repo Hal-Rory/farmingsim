@@ -3,6 +3,7 @@ using Items;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static ISelectable;
 using static ITimeManager;
 using static UIManager;
 
@@ -94,7 +95,7 @@ public class GameManager : MonoBehaviour
     public event Action<Item> OnItemUpdated;
     public event Action<Item> OnCurrentItemUpdated;
 
-    [SerializeField] private Inventory GameInventory = new Inventory();
+    [SerializeField] private GameInventory GameInventory;
     
     public event Action<Item> OnToolUpdated;
     [SerializeField] private ItemBelt ToolBelt = new ItemBelt();
